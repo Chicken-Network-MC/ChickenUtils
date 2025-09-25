@@ -86,7 +86,7 @@ public class Database {
 
             configuration.setProperties(settings);
 
-            Reflections reflections = new Reflections(plugin.getClass() + ".models");
+            Reflections reflections = new Reflections(plugin.getClass().getPackage().getName() + ".models");
             Set<Class<?>> entityClasses = reflections.getTypesAnnotatedWith(Entity.class);
             for (Class<?> entityClass : entityClasses) {
                 configuration.addAnnotatedClass(entityClass);

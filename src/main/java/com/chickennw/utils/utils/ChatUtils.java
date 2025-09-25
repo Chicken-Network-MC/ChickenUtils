@@ -10,8 +10,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-import java.text.SimpleDateFormat;
-
 public class ChatUtils {
 
     public static final MiniMessage MINI_MESSAGE = MiniMessage.builder()
@@ -20,8 +18,6 @@ public class ChatUtils {
             .emitVirtuals(false)
             .postProcessor(component -> component.decoration(TextDecoration.ITALIC, false))
             .build();
-
-    public static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("dd.MM.yyyy HH:mm");
 
     public static final LegacyComponentSerializer LEGACY_COMPONENT_SERIALIZER = LegacyComponentSerializer.builder()
             .character('§')
@@ -54,7 +50,7 @@ public class ChatUtils {
     public static TextComponent colorize(String message) {
         if (message == null) return Component.text("null text");
 
-        return (TextComponent) MINI_MESSAGE.deserialize(LEGACY_COMPONENT_SERIALIZER.serialize(Component.text(message)));
+        return (TextComponent) MINI_MESSAGE.deserialize(message);
     }
 
     public static String convert(TextComponent component) {
