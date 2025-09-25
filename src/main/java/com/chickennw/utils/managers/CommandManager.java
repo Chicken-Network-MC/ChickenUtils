@@ -1,0 +1,148 @@
+package com.chickennw.utils.managers;
+
+import com.chickennw.utils.ChickenUtils;
+import com.chickennw.utils.utils.ChatUtils;
+import com.chickennw.utils.utils.SoundUtils;
+import dev.triumphteam.cmd.bukkit.BukkitCommandManager;
+import dev.triumphteam.cmd.bukkit.message.BukkitMessageKey;
+import dev.triumphteam.cmd.core.BaseCommand;
+import dev.triumphteam.cmd.core.exceptions.CommandRegistrationException;
+import dev.triumphteam.cmd.core.message.MessageKey;
+import dev.triumphteam.cmd.core.suggestion.SuggestionKey;
+import dev.triumphteam.cmd.core.suggestion.SuggestionResolver;
+import org.bukkit.Bukkit;
+import org.bukkit.Server;
+import org.bukkit.command.CommandMap;
+import org.bukkit.command.CommandSender;
+import org.bukkit.command.SimpleCommandMap;
+import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.entity.Player;
+import org.bukkit.plugin.java.JavaPlugin;
+import org.jetbrains.annotations.NotNull;
+
+import java.io.File;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
+public class CommandManager {
+
+    private static CommandManager instance;
+    private final BukkitCommandManager<CommandSender> manager;
+    private final List<BaseCommand> commands = new ArrayList<>();
+    private final JavaPlugin plugin;
+    private final FileConfiguration lang;
+
+    public static CommandManager getInstance() {
+        if (instance == null) {
+            instance = new CommandManager();
+        }
+
+        return instance;
+    }
+
+    private CommandManager() {
+        plugin = ChickenUtils.getPlugin();
+
+        manager = BukkitCommandManager.create(plugin);
+
+        File langFile = new File(plugin.getDataFolder(), "lang.yml");
+        lang = YamlConfiguration.loadConfiguration(langFile);
+    }
+
+    public void registerCommand(BaseCommand command) {
+        commands.add(command);
+        manager.registerCommand(command);
+    }
+
+    public void unregisterCommands() {
+        commands.forEach(c -> {
+            manager.unregisterCommand(c);
+            unregisterCommand(c.getCommand());
+            c.getAlias().forEach(this::unregisterCommand);
+        });
+    }
+
+    private void unregisterCommand(String name) {
+        getBukkitCommands(getCommandMap()).remove(name);
+    }
+
+    @NotNull
+    private CommandMap getCommandMap() {
+        try {
+            final Server server = Bukkit.getServer();
+            final Method getCommandMap = server.getClass().getDeclaredMethod("getCommandMap");
+            getCommandMap.setAccessible(true);
+
+            return (CommandMap) getCommandMap.invoke(server);
+        } catch (final Exception ignored) {
+            throw new CommandRegistrationException("Unable get Command Map. Commands will not be registered!");
+        }
+    }
+
+    @NotNull
+    private Map<String, org.bukkit.command.Command> getBukkitCommands(@NotNull final CommandMap commandMap) {
+        try {
+            final Field bukkitCommands = SimpleCommandMap.class.getDeclaredField("knownCommands");
+            bukkitCommands.setAccessible(true);
+            //noinspection unchecked
+            return (Map<String, org.bukkit.command.Command>) bukkitCommands.get(commandMap);
+        } catch (NoSuchFieldException | IllegalAccessException e) {
+            throw new CommandRegistrationException("Unable get Bukkit commands. Commands might not be registered correctly!");
+        }
+    }
+
+    public void registerSuggestion(SuggestionKey key, @NotNull SuggestionResolver<CommandSender> suggestionResolver) {
+        manager.registerSuggestion(key, suggestionResolver);
+    }
+
+    public void registerSuggestions() {
+        registerSuggestion(SuggestionKey.of("players"), (sender, context) -> {
+            List<String> players = new ArrayList<>();
+            for (Player player : Bukkit.getOnlinePlayers()) {
+                players.add(player.getName());
+            }
+            return players;
+        });
+
+        registerSuggestion(SuggestionKey.of("amount"), (sender, context) -> List.of("amount"));
+    }
+
+    public void registerMessages() {
+        FileConfiguration config = plugin.getConfig();
+        String prefix = config.getString("prefix");
+
+        manager.registerMessage(MessageKey.NOT_ENOUGH_ARGUMENTS, (sender, context) -> {
+            String message = ChatUtils.colorizeLegacy(prefix + lang.getString("too-few-args"));
+            sender.sendMessage(message);
+            if (sender instanceof Player) SoundUtils.sendSound((Player) sender, "invalid-command");
+        });
+
+        manager.registerMessage(MessageKey.TOO_MANY_ARGUMENTS, (sender, context) -> {
+            String message = ChatUtils.colorizeLegacy(prefix + lang.getString("too-many-args"));
+            sender.sendMessage(message);
+            if (sender instanceof Player) SoundUtils.sendSound((Player) sender, "invalid-command");
+        });
+
+        manager.registerMessage(MessageKey.INVALID_ARGUMENT, (sender, context) -> {
+            String message = ChatUtils.colorizeLegacy(prefix + lang.getString("invalid-arg"));
+            sender.sendMessage(message);
+            if (sender instanceof Player) SoundUtils.sendSound((Player) sender, lang.getString("invalid-command"));
+        });
+
+        manager.registerMessage(MessageKey.UNKNOWN_COMMAND, (sender, context) -> {
+            String message = ChatUtils.colorizeLegacy(prefix + lang.getString("unknown-command"));
+            sender.sendMessage(message);
+            if (sender instanceof Player) SoundUtils.sendSound((Player) sender, "invalid-command");
+        });
+
+        manager.registerMessage(BukkitMessageKey.NO_PERMISSION, (sender, context) -> {
+            String message = ChatUtils.colorizeLegacy(prefix + lang.getString("no-permission"));
+            sender.sendMessage(message);
+            if (sender instanceof Player) SoundUtils.sendSound((Player) sender, "no-permission");
+        });
+    }
+}
