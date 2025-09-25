@@ -39,7 +39,7 @@ public class ConfigManager {
 
     }
 
-    private void loadOkaeriConfig(Class<? extends OkaeriConfig> clazz) {
+    public void loadOkaeriConfig(Class<? extends OkaeriConfig> clazz) {
         JavaPlugin plugin = ChickenUtils.getPlugin();
         String fileName = clazz.getSimpleName().replace("File", "") + ".yml";
         OkaeriConfig config = eu.okaeri.configs.ConfigManager.create(clazz, (it) -> {
@@ -54,7 +54,7 @@ public class ConfigManager {
         configClassHolders.add(holder);
     }
 
-    private void createFiles(String path) {
+    public void createFiles(String path) {
         JavaPlugin plugin = ChickenUtils.getPlugin();
         Logger logger = plugin.getLogger();
         File jarFile = new File(plugin.getClass().getProtectionDomain().getCodeSource().getLocation().getPath());
@@ -79,7 +79,7 @@ public class ConfigManager {
     }
 
     private List<Class<? extends OkaeriConfig>> loadClasses() {
-        Reflections reflections = new Reflections("com.chickennw.utils");
+        Reflections reflections = new Reflections(ChickenUtils.getPlugin().getClass().getPackage());
         Set<Class<? extends OkaeriConfig>> set = reflections.getSubTypesOf(OkaeriConfig.class);
 
         return set.stream()
