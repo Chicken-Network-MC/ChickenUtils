@@ -51,11 +51,14 @@ public class CommandManager {
 
         File langFile = new File(plugin.getDataFolder(), "lang.yml");
         lang = YamlConfiguration.loadConfiguration(langFile);
+
+        registerSuggestions();
+        registerMessages();
     }
 
-    public void registerCommand(BaseCommand command) {
-        commands.add(command);
+    public <T extends BaseCommand> void registerCommand(T command) {
         manager.registerCommand(command);
+        commands.add(command);
     }
 
     public void unregisterCommands() {
@@ -99,7 +102,7 @@ public class CommandManager {
         manager.registerSuggestion(key, suggestionResolver);
     }
 
-    public void registerSuggestions() {
+    private void registerSuggestions() {
         registerSuggestion(SuggestionKey.of("players"), (sender, context) -> {
             List<String> players = new ArrayList<>();
             for (Player player : Bukkit.getOnlinePlayers()) {
@@ -109,9 +112,11 @@ public class CommandManager {
         });
 
         registerSuggestion(SuggestionKey.of("amount"), (sender, context) -> List.of("amount"));
+
+        registerSuggestion(SuggestionKey.of("double-suggestion"), (sender, context) -> List.of("10.0", "20.0", "30.0"));
     }
 
-    public void registerMessages() {
+    private void registerMessages() {
         FileConfiguration config = plugin.getConfig();
         String prefix = config.getString("prefix");
 

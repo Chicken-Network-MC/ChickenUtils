@@ -21,32 +21,30 @@ import java.util.concurrent.ThreadFactory;
 @Getter
 public class Database {
 
-    private final ExecutorService executor;
-    private SessionFactory sessionFactory;
+    protected final ExecutorService executor;
+    protected SessionFactory sessionFactory;
 
     public Database(JavaPlugin plugin) {
         FileConfiguration config = plugin.getConfig();
-        String workerPoolName = config.getString("database.pool-name");
-        String poolName = config.getString("database.worker-pool-name");
-        int threadCount = config.getInt("database.poolName");
+        int threadCount = config.getInt("database.threads");
 
         if (config.getBoolean("enable-virtual-threads")) {
             ThreadFactory factory = Thread.ofVirtual()
-                    .name(workerPoolName, 0)
+                    .name(plugin.getClass().getSimpleName() + "-database-worker-", 0)
                     .uncaughtExceptionHandler((thread, throwable) -> throwable.printStackTrace())
                     .factory();
             executor = Executors.newThreadPerTaskExecutor(factory);
         } else {
             executor = Executors.newFixedThreadPool(threadCount, r -> {
                 Thread t = new Thread(r);
-                t.setName(workerPoolName + t.threadId());
+                t.setName(plugin.getClass().getSimpleName() + "-database-worker-" + t.threadId());
                 t.setUncaughtExceptionHandler((thread, throwable) -> throwable.printStackTrace());
                 return t;
             });
         }
 
         try {
-            Thread.currentThread().setContextClassLoader(getClass().getClassLoader());
+            Thread.currentThread().setContextClassLoader(plugin.getClass().getClassLoader());
 
             Configuration configuration = new Configuration();
             Properties settings = new Properties();
@@ -58,7 +56,6 @@ public class Database {
             settings.put("log4j.logger.org.hibernate.SQL", "DEBUG");
             settings.put("hibernate.connection.provider_class", "org.hibernate.hikaricp.internal.HikariCPConnectionProvider");
 
-
             String minIdle = config.getString("database.min-idle");
             String maxPool = config.getString("database.max-pool");
             String idleTimeout = config.getString("database.idle-timeout");
@@ -66,7 +63,7 @@ public class Database {
             settings.put("hibernate.hikari.minimumIdle", minIdle);
             settings.put("hibernate.hikari.maximumPoolSize", maxPool);
             settings.put("hibernate.hikari.idleTimeout", idleTimeout);
-            settings.put("hibernate.hikari.poolName", poolName);
+            settings.put("hibernate.hikari.poolName", plugin.getClass().getSimpleName() + "DatabasePool");
 
             if (type.equalsIgnoreCase("mysql")) {
                 String host = config.getString("database.host");

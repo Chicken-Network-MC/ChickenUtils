@@ -67,10 +67,6 @@
                                     <shadedPattern>com.chickennw.utils.libs.anvilgui</shadedPattern>
                                 </relocation>
                                 <relocation>
-                                    <pattern>com.tcoded.folialib</pattern>
-                                    <shadedPattern>com.chickennw.utils.libs.folialib</shadedPattern>
-                                </relocation>
-                                <relocation>
                                     <pattern>net.kyori.adventure</pattern>
                                     <shadedPattern>com.chickennw.utils.libs.adventure</shadedPattern>
                                 </relocation>
@@ -241,7 +237,7 @@
             <groupId>com.tcoded</groupId>
             <artifactId>FoliaLib</artifactId>
             <version>0.5.1</version>
-            <scope>compile</scope>
+            <scope>provided</scope>
         </dependency>
 
         <!-- Database -->
