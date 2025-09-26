@@ -57,15 +57,17 @@ public class CommandManager {
     }
 
     public <T extends BaseCommand> void registerCommand(T command) {
+        plugin.getSLF4JLogger().info("Registering command: {}", command.getClass().getSimpleName());
         manager.registerCommand(command);
         commands.add(command);
     }
 
     public void unregisterCommands() {
         commands.forEach(c -> {
+            plugin.getSLF4JLogger().info("Unregistering command: {}", c.getClass().getSimpleName());
             manager.unregisterCommand(c);
-            unregisterCommand(c.getCommand());
             c.getAlias().forEach(this::unregisterCommand);
+            unregisterCommand(c.getCommand());
         });
     }
 

@@ -89,6 +89,7 @@ public class Database {
             Reflections reflections = new Reflections(plugin.getClass().getPackage().getName() + ".models");
             Set<Class<?>> entityClasses = reflections.getTypesAnnotatedWith(Entity.class);
             for (Class<?> entityClass : entityClasses) {
+                plugin.getSLF4JLogger().info("Loading entity class: {}", entityClass.getSimpleName());
                 configuration.addAnnotatedClass(entityClass);
             }
 
@@ -118,14 +119,16 @@ public class Database {
     }
 
     public CompletableFuture<Void> delete(Object object) {
-        return CompletableFuture.runAsync(() -> {
-            try (Session session = sessionFactory.openSession()) {
-                Transaction tx = session.beginTransaction();
+        return CompletableFuture.runAsync(() -> deleteSync(object), executor);
+    }
 
-                session.remove(object);
-                tx.commit();
-            }
-        }, executor);
+    public void deleteSync(Object object) {
+        try (Session session = sessionFactory.openSession()) {
+            Transaction tx = session.beginTransaction();
+
+            session.remove(object);
+            tx.commit();
+        }
     }
 
     public void close() {
