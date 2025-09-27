@@ -57,7 +57,7 @@ public class FancyHologramsHook extends AbstractPluginHook implements HologramHo
         holoLoc.setPitch(0);
 
         FileConfiguration config = ChickenUtils.getPlugin().getConfig();
-        int range = config.getInt("hologram-visibility-range");
+        int range = config.isSet("hologram-visibility-range") ? config.getInt("hologram-visibility-range") : 30;
 
         TextHologramData hologramData = new TextHologramData(locString, holoLoc);
         hologramData.setBillboard(billboard);
