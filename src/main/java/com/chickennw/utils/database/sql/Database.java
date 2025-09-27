@@ -1,4 +1,4 @@
-package com.chickennw.utils.database;
+package com.chickennw.utils.database.sql;
 
 import jakarta.persistence.Entity;
 import lombok.Getter;
@@ -19,7 +19,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 
 @Getter
-public class Database {
+public abstract class Database {
 
     protected final ExecutorService executor;
     protected SessionFactory sessionFactory;
@@ -47,44 +47,8 @@ public class Database {
             Thread.currentThread().setContextClassLoader(plugin.getClass().getClassLoader());
 
             Configuration configuration = new Configuration();
-            Properties settings = new Properties();
-            String type = config.getString("database.type");
-
-            settings.put("hibernate.hbm2ddl.auto", "update");
-            settings.put("hibernate.show_sql", "false");
-            settings.put("log4j.logger.org.hibernate", "DEBUG");
-            settings.put("log4j.logger.org.hibernate.SQL", "DEBUG");
-            settings.put("hibernate.connection.provider_class", "org.hibernate.hikaricp.internal.HikariCPConnectionProvider");
-
-            String minIdle = config.getString("database.min-idle");
-            String maxPool = config.getString("database.max-pool");
-            String idleTimeout = config.getString("database.idle-timeout");
-
-            settings.put("hibernate.hikari.minimumIdle", minIdle);
-            settings.put("hibernate.hikari.maximumPoolSize", maxPool);
-            settings.put("hibernate.hikari.idleTimeout", idleTimeout);
-            settings.put("hibernate.hikari.poolName", plugin.getClass().getSimpleName() + "DatabasePool");
-
-            if (type.equalsIgnoreCase("mysql")) {
-                String host = config.getString("database.host");
-                String port = config.getString("database.port");
-                String database = config.getString("database.database");
-                String user = config.getString("database.user");
-                String password = config.getString("database.password");
-                String url = String.format("jdbc:mariadb://%s:%s/%s", host, port, database);
-
-                //settings.put("hibernate.dialect", "org.hibernate.dialect.MySQLDialect");
-                settings.put("hibernate.connection.driver_class", "org.mariadb.jdbc.Driver");
-                settings.put("hibernate.connection.url", url);
-                settings.put("hibernate.connection.username", user);
-                settings.put("hibernate.connection.password", password);
-            } else {
-                String path = plugin.getDataFolder().getAbsolutePath();
-                settings.put("hibernate.connection.driver_class", "org.h2.Driver");
-                settings.put("hibernate.connection.url", "jdbc:h2:" + path + "/database;AUTO_RECONNECT=TRUE;FILE_LOCK=NO");
-            }
-
-            configuration.setProperties(settings);
+            Properties properties = generateProperties(plugin);
+            configuration.setProperties(properties);
 
             Reflections reflections = new Reflections(plugin.getClass().getPackage().getName() + ".models");
             Set<Class<?>> entityClasses = reflections.getTypesAnnotatedWith(Entity.class);
@@ -98,6 +62,48 @@ public class Database {
         } catch (Throwable ex) {
             ex.printStackTrace();
         }
+    }
+
+    private Properties generateProperties(JavaPlugin plugin) {
+        Properties settings = new Properties();
+        FileConfiguration config = plugin.getConfig();
+        String type = config.getString("database.type");
+
+        settings.put("hibernate.hbm2ddl.auto", "update");
+        settings.put("hibernate.show_sql", "false");
+        settings.put("log4j.logger.org.hibernate", "DEBUG");
+        settings.put("log4j.logger.org.hibernate.SQL", "DEBUG");
+        settings.put("hibernate.connection.provider_class", "org.hibernate.hikaricp.internal.HikariCPConnectionProvider");
+
+        String minIdle = config.getString("database.min-idle");
+        String maxPool = config.getString("database.max-pool");
+        String idleTimeout = config.getString("database.idle-timeout");
+
+        settings.put("hibernate.hikari.minimumIdle", minIdle);
+        settings.put("hibernate.hikari.maximumPoolSize", maxPool);
+        settings.put("hibernate.hikari.idleTimeout", idleTimeout);
+        settings.put("hibernate.hikari.poolName", plugin.getClass().getSimpleName() + "DatabasePool");
+
+        if (type.equalsIgnoreCase("mysql")) {
+            String host = config.getString("database.mysql.host");
+            String port = config.getString("database.mysql.port");
+            String database = config.getString("database.mysql.database");
+            String user = config.getString("database.mysql.user");
+            String password = config.getString("database.mysql.password");
+            String url = String.format("jdbc:mariadb://%s:%s/%s", host, port, database);
+
+            //settings.put("hibernate.dialect", "org.hibernate.dialect.MySQLDialect");
+            settings.put("hibernate.connection.driver_class", "org.mariadb.jdbc.Driver");
+            settings.put("hibernate.connection.url", url);
+            settings.put("hibernate.connection.username", user);
+            settings.put("hibernate.connection.password", password);
+        } else {
+            String path = plugin.getDataFolder().getAbsolutePath();
+            settings.put("hibernate.connection.driver_class", "org.h2.Driver");
+            settings.put("hibernate.connection.url", "jdbc:h2:" + path + "/database;AUTO_RECONNECT=TRUE;FILE_LOCK=NO");
+        }
+
+        return settings;
     }
 
     public CompletableFuture<Void> save(Object object) {
