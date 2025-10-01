@@ -45,7 +45,7 @@ public class DecentHologramsHook extends AbstractPluginHook implements HologramH
         Hologram hologram = DHAPI.createHologram(locString, location, lines);
 
         FileConfiguration config = ChickenUtils.getPlugin().getConfig();
-        int range = config.getInt("hologram-visibility-range");
+        int range = config.isSet("hologram-visibility-range") ? config.getInt("hologram-visibility-range") : 30;
         hologram.setDisplayRange(range);
         hologram.setUpdateRange(range);
     }
