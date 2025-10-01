@@ -66,6 +66,14 @@
                                     <pattern>net.wesjd.anvilgui</pattern>
                                     <shadedPattern>com.chickennw.utils.libs.anvilgui</shadedPattern>
                                 </relocation>
+                                <relocation>
+                                    <pattern>com.tcoded.folialib</pattern>
+                                    <shadedPattern>com.chickennw.utils.libs.folia</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>eu.okaeri</pattern>
+                                    <shadedPattern>com.chickennw.utils.libs.config</shadedPattern>
+                                </relocation>
                             </relocations>
                             <filters>
                                 <filter>
@@ -211,7 +219,6 @@
             <groupId>com.tcoded</groupId>
             <artifactId>FoliaLib</artifactId>
             <version>0.5.1</version>
-            <scope>provided</scope>
         </dependency>
 
         <!-- Database -->
