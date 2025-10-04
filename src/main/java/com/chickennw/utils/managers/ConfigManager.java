@@ -52,6 +52,7 @@ public class ConfigManager {
 
         ConfigClassHolder holder = new ConfigClassHolder(config, clazz);
         configClassHolders.add(holder);
+        ChickenUtils.getPlugin().getSLF4JLogger().info("Loaded config file: {}", fileName);
     }
 
     public void createFiles(String path) {

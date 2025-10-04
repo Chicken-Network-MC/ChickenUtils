@@ -67,12 +67,8 @@
                                     <shadedPattern>com.chickennw.utils.libs.anvilgui</shadedPattern>
                                 </relocation>
                                 <relocation>
-                                    <pattern>de.tr7zw.changeme</pattern>
-                                    <shadedPattern>com.chickennw.utils.libs.nbtapi</shadedPattern>
-                                </relocation>
-                                <relocation>
-                                    <pattern>com.cryptomorin</pattern>
-                                    <shadedPattern>com.chickennw.utils.libs.xseries</shadedPattern>
+                                    <pattern>com.tcoded.folialib</pattern>
+                                    <shadedPattern>com.chickennw.utils.libs.folia</shadedPattern>
                                 </relocation>
                                 <relocation>
                                     <pattern>eu.okaeri</pattern>
@@ -223,7 +219,6 @@
             <groupId>com.tcoded</groupId>
             <artifactId>FoliaLib</artifactId>
             <version>0.5.1</version>
-            <scope>provided</scope>
         </dependency>
 
         <!-- Database -->

@@ -4,6 +4,7 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.format.TextDecoration;
 import net.kyori.adventure.text.minimessage.MiniMessage;
+import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
 import net.kyori.adventure.text.minimessage.tag.standard.StandardTags;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.Bukkit;
@@ -13,7 +14,7 @@ import org.bukkit.entity.Player;
 public class ChatUtils {
 
     public static final MiniMessage MINI_MESSAGE = MiniMessage.builder()
-            .tags(StandardTags.defaults())
+            .tags(TagResolver.builder().resolver(StandardTags.defaults()).build())
             .strict(false)
             .emitVirtuals(false)
             .postProcessor(component -> component.decoration(TextDecoration.ITALIC, false))
