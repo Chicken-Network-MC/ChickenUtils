@@ -66,6 +66,18 @@
                                     <pattern>net.wesjd.anvilgui</pattern>
                                     <shadedPattern>com.chickennw.utils.libs.anvilgui</shadedPattern>
                                 </relocation>
+                                <relocation>
+                                    <pattern>de.tr7zw.changeme</pattern>
+                                    <shadedPattern>com.chickennw.utils.libs.nbtapi</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>com.cryptomorin</pattern>
+                                    <shadedPattern>com.chickennw.utils.libs.xseries</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>eu.okaeri</pattern>
+                                    <shadedPattern>com.chickennw.utils.libs.config</shadedPattern>
+                                </relocation>
                             </relocations>
                             <filters>
                                 <filter>
