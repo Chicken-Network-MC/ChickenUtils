@@ -4,12 +4,15 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.format.TextDecoration;
 import net.kyori.adventure.text.minimessage.MiniMessage;
+import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
 import net.kyori.adventure.text.minimessage.tag.standard.StandardTags;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+
+import java.util.List;
 
 public class ChatUtils {
 
@@ -48,10 +51,14 @@ public class ChatUtils {
         sender.sendMessage(component);
     }
 
-    public static TextComponent colorize(String message) {
+    public static List<TextComponent> colorize(List<String> message, TagResolver... placeholders) {
+        return message.stream().map(m -> colorize(m, placeholders)).toList();
+    }
+
+    public static TextComponent colorize(String message, TagResolver... placeholders) {
         if (message == null) return Component.text("null text");
 
-        return (TextComponent) MINI_MESSAGE.deserialize(message);
+        return (TextComponent) MINI_MESSAGE.deserialize(message, placeholders);
     }
 
     public static String convert(TextComponent component) {
