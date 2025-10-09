@@ -15,25 +15,11 @@ import java.util.Base64;
  */
 public class ItemStackBase64 {
 
-	public static String toBase64(ItemStack item) {
-		try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-			 BukkitObjectOutputStream dataOutput = new BukkitObjectOutputStream(outputStream)) {
-
-			dataOutput.writeObject(item);
-			return Base64.getEncoder().encodeToString(outputStream.toByteArray());
-
-		} catch (IOException e) {
-			throw new RuntimeException("Unable to serialize ItemStack", e);
-		}
+	public static byte[] toBase64(ItemStack item) {
+		return item.serializeAsBytes();
 	}
 
-	public static ItemStack fromBase64(String base64) {
-		try (ByteArrayInputStream inputStream = new ByteArrayInputStream(Base64.getDecoder().decode(base64));
-			 BukkitObjectInputStream dataInput = new BukkitObjectInputStream(inputStream)) {
-
-			return (ItemStack) dataInput.readObject();
-		} catch (IOException | ClassNotFoundException e) {
-			throw new RuntimeException("Unable to deserialize ItemStack", e);
-		}
+	public static ItemStack fromBase64(byte[] bytes) {
+		return ItemStack.deserializeBytes(bytes);
 	}
 }
