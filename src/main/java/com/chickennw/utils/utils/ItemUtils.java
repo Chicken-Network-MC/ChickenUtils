@@ -14,9 +14,6 @@ import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 
-/**
- * @author Arda Atmaca
- */
 public class ItemUtils {
 
     private static final ConcurrentHashMap<String, ItemStack> cachedPlayerHeads = new ConcurrentHashMap<>();
