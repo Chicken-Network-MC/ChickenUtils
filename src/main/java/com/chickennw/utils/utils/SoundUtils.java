@@ -2,6 +2,7 @@ package com.chickennw.utils.utils;
 
 import com.chickennw.utils.ChickenUtils;
 import com.cryptomorin.xseries.XSound;
+import org.bukkit.Sound;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
@@ -22,10 +23,10 @@ public class SoundUtils {
         if (soundName == null) return;
         if (soundName.isBlank()) return;
 
-        SoundUtils.sendRawSound(p, soundName, 1, 1);
+        sendSoundRaw(p, soundName);
     }
 
-    private static void sendRawSound(Player p, String soundName, double volume, double pitch) {
+    public static void sendSoundRaw(Player p, String soundName) {
         try {
             XSound xSound = null;
             for (XSound sound : XSound.values()) {
@@ -37,11 +38,14 @@ public class SoundUtils {
 
             if (xSound == null) return;
 
-            xSound.play(p, (float) volume, (float) pitch);
+            SoundUtils.sendSound(p, xSound.get());
         } catch (IllegalArgumentException e) {
             ChickenUtils.getPlugin().getLogger().severe("Error sound playing: " + soundName);
             e.printStackTrace();
         }
+    }
 
+    public static void sendSound(Player p, Sound sound) {
+        p.playSound(p, sound, 1, 1);
     }
 }
