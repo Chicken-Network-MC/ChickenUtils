@@ -9,7 +9,9 @@ import io.lettuce.core.api.StatefulRedisConnection;
 import io.lettuce.core.pubsub.RedisPubSubAdapter;
 import io.lettuce.core.pubsub.StatefulRedisPubSubConnection;
 import lombok.Getter;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.configuration.file.YamlConfiguration;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,13 +32,20 @@ public abstract class RedisDatabase {
     }
 
     public RedisDatabase(Gson gson) {
+        this(ChickenUtils.getPlugin().getConfig().getConfigurationSection("Redis"), gson);
+    }
+
+    public RedisDatabase(ConfigurationSection yaml) {
+        this(yaml, new Gson());
+    }
+
+    public RedisDatabase(ConfigurationSection yaml, Gson gson) {
         this.gson = gson;
 
-        FileConfiguration yaml = ChickenUtils.getPlugin().getConfig();
-        String host = yaml.getString("Redis.host");
-        int port = yaml.getInt("Redis.port");
-        String password = yaml.getString("Redis.password");
-        String user = yaml.getString("Redis.user");
+        String host = yaml.getString("host");
+        int port = yaml.getInt("port");
+        String password = yaml.getString("password");
+        String user = yaml.getString("user");
 
         redisClient = RedisClient.create(RedisURI.Builder.redis(host, port).withAuthentication(user, password).withDatabase(0).build());
         pubSubConnection = redisClient.connectPubSub();
