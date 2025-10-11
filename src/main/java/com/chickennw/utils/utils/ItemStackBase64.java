@@ -1,13 +1,6 @@
 package com.chickennw.utils.utils;
 
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.util.io.BukkitObjectInputStream;
-import org.bukkit.util.io.BukkitObjectOutputStream;
-
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.util.Base64;
 
 /**
  * Should probably switch to a more robust serialization method in the future using ItemStack#serializeAsBytes()
@@ -15,11 +8,11 @@ import java.util.Base64;
  */
 public class ItemStackBase64 {
 
-	public static byte[] toBase64(ItemStack item) {
-		return item.serializeAsBytes();
-	}
+    public static byte[] toBase64(ItemStack item) {
+        return item.serializeAsBytes();
+    }
 
-	public static ItemStack fromBase64(byte[] bytes) {
-		return ItemStack.deserializeBytes(bytes);
-	}
+    public static ItemStack fromBase64(byte[] bytes) {
+        return ItemStack.deserializeBytes(bytes);
+    }
 }

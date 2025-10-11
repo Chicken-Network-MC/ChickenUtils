@@ -6,9 +6,9 @@ import com.cryptomorin.xseries.XMaterial;
 import com.cryptomorin.xseries.profiles.builder.XSkull;
 import com.cryptomorin.xseries.profiles.objects.Profileable;
 import org.bukkit.Material;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.inventory.ItemStack;
 
-import javax.annotation.Nullable;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
@@ -18,7 +18,7 @@ public class ItemUtils {
 
     private static final ConcurrentHashMap<String, ItemStack> cachedPlayerHeads = new ConcurrentHashMap<>();
 
-    public static CompletableFuture<ItemStack> parseItemStack(@Nullable String rawMaterial, UUID player) {
+    public static CompletableFuture<ItemStack> parseItemStack(String rawMaterial, UUID player) {
         if (rawMaterial == null) return CompletableFuture.completedFuture(new ItemStack(Material.STONE));
 
         if (rawMaterial.contains("HEAD-")) {
@@ -31,6 +31,13 @@ public class ItemUtils {
             XMaterial material = optMaterial.orElse(XMaterial.STONE);
             return CompletableFuture.completedFuture(material.parseItem());
         }
+    }
+
+    public static CompletableFuture<ItemStack> parseItemStack(String rawMaterial, OfflinePlayer player) {
+        if (rawMaterial == null) return CompletableFuture.completedFuture(new ItemStack(Material.STONE));
+
+        if (rawMaterial.equalsIgnoreCase("player")) return HeadUtils.getHead(player);
+        return ItemUtils.parseItemStack(rawMaterial, player.getUniqueId());
     }
 
     public static ItemStack parseTexture(String texture) {
