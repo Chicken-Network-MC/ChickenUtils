@@ -7,6 +7,7 @@ import org.bukkit.inventory.ItemStack;
 import java.lang.reflect.Type;
 import java.util.Map;
 
+@SuppressWarnings("unused")
 public class ItemStackSerializer implements JsonSerializer<ItemStack>, JsonDeserializer<ItemStack> {
 
     @Override

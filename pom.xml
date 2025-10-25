@@ -273,7 +273,7 @@
         <dependency>
             <groupId>de.themoep</groupId>
             <artifactId>inventorygui</artifactId>
-            <version>1.6.5-SNAPSHOT</version>
+            <version>1.6.5-CHICKENNW</version>
             <scope>compile</scope>
         </dependency>
 
