@@ -10,8 +10,6 @@ import io.lettuce.core.pubsub.RedisPubSubAdapter;
 import io.lettuce.core.pubsub.StatefulRedisPubSubConnection;
 import lombok.Getter;
 import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.configuration.file.YamlConfiguration;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -55,7 +53,7 @@ public abstract class RedisDatabase {
     }
 
     public void publish(RedisMessage message) {
-        redisConnection.async().publish(message.channel(), gson.toJson(message.message()));
+        redisConnection.async().publish(message.channel(), message.message().toString());
     }
 
     public void subscribe(String channel) {
@@ -74,8 +72,7 @@ public abstract class RedisDatabase {
             public void message(String channelName, String message) {
                 if (!subscribedChannels.contains(channelName)) return;
 
-                RedisMessage redisMessage = new RedisMessage(channelName, message);
-                onMessage(redisMessage);
+                onMessage(channelName, message);
             }
         });
     }
@@ -85,6 +82,6 @@ public abstract class RedisDatabase {
         redisClient.close();
     }
 
-    public abstract void onMessage(RedisMessage redisMessage);
+    public abstract void onMessage(String channel, String message);
 
 }

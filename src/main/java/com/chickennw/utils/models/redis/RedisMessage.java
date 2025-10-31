@@ -1,4 +1,6 @@
 package com.chickennw.utils.models.redis;
 
-public record RedisMessage(String channel, String message) {
+import org.json.JSONObject;
+
+public record RedisMessage(String channel, JSONObject message) {
 }
