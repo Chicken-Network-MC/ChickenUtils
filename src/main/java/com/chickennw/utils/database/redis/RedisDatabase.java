@@ -1,15 +1,13 @@
 package com.chickennw.utils.database.redis;
 
-import com.chickennw.utils.ChickenUtils;
+import com.chickennw.utils.models.config.redis.RedisConfiguration;
 import com.chickennw.utils.models.redis.RedisMessage;
-import com.google.gson.Gson;
 import io.lettuce.core.RedisClient;
 import io.lettuce.core.RedisURI;
 import io.lettuce.core.api.StatefulRedisConnection;
 import io.lettuce.core.pubsub.RedisPubSubAdapter;
 import io.lettuce.core.pubsub.StatefulRedisPubSubConnection;
 import lombok.Getter;
-import org.bukkit.configuration.ConfigurationSection;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,27 +21,11 @@ public abstract class RedisDatabase {
     private final StatefulRedisConnection<String, String> redisConnection;
     private final StatefulRedisPubSubConnection<String, String> pubSubConnection;
 
-    private final Gson gson;
-
-    public RedisDatabase() {
-        this(new Gson());
-    }
-
-    public RedisDatabase(Gson gson) {
-        this(ChickenUtils.getPlugin().getConfig().getConfigurationSection("Redis"), gson);
-    }
-
-    public RedisDatabase(ConfigurationSection yaml) {
-        this(yaml, new Gson());
-    }
-
-    public RedisDatabase(ConfigurationSection yaml, Gson gson) {
-        this.gson = gson;
-
-        String host = yaml.getString("host");
-        int port = yaml.getInt("port");
-        String password = yaml.getString("password");
-        String user = yaml.getString("user");
+    public RedisDatabase(RedisConfiguration redisConfiguration) {
+        String host = redisConfiguration.getHost();
+        int port = redisConfiguration.getPort();
+        String password = redisConfiguration.getPassword();
+        String user = redisConfiguration.getUser();
 
         redisClient = RedisClient.create(RedisURI.Builder.redis(host, port).withAuthentication(user, password).withDatabase(0).build());
         pubSubConnection = redisClient.connectPubSub();
