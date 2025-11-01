@@ -17,9 +17,9 @@ public abstract class RedisDatabase {
 
     private final List<String> subscribedChannels = new ArrayList<>();
 
-    private final RedisClient redisClient;
-    private final StatefulRedisConnection<String, String> redisConnection;
-    private final StatefulRedisPubSubConnection<String, String> pubSubConnection;
+    protected final RedisClient redisClient;
+    protected final StatefulRedisConnection<String, String> redisConnection;
+    protected final StatefulRedisPubSubConnection<String, String> pubSubConnection;
 
     public RedisDatabase(RedisConfiguration redisConfiguration) {
         String host = redisConfiguration.getHost();
