@@ -54,7 +54,7 @@ public abstract class LitMenu {
 
             XSound.of(rawSound.toUpperCase(Locale.US))
                     .ifPresentOrElse(sound -> this.sound = sound.get(),
-                                     () -> plugin.getLogger().severe("Couldn't find sound named: " + rawSound + " in menu: " + this.name));
+                            () -> plugin.getLogger().severe("Couldn't find sound named: " + rawSound + " in menu: " + this.name));
         } catch (Exception ex) {
             plugin.getLogger().severe("Couldn't find sound named: " + rawSound + " in menu: " + this.name);
         }
