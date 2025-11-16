@@ -1,7 +1,6 @@
 package com.chickennw.utils.utils;
 
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.format.TextDecoration;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
@@ -28,39 +27,39 @@ public class ChatUtils {
             .useUnusualXRepeatedCharacterHexFormat()
             .build();
 
-    public static void sendPlayerMessage(Player player, TextComponent component) {
+    public static void sendPlayerMessage(Player player, Component component) {
         player.sendMessage(component);
     }
 
-    public static void broadcastMessage(TextComponent component) {
+    public static void broadcastMessage(Component component) {
         Bukkit.getServer().sendMessage(component);
     }
 
-    public static void sendSenderMessage(CommandSender sender, TextComponent component) {
+    public static void sendSenderMessage(CommandSender sender, Component component) {
         sender.sendMessage(component);
     }
 
     public static void sendPlayerMessage(Player player, String message) {
-        TextComponent component = ChatUtils.colorize(message);
+        Component component = ChatUtils.colorize(message);
         player.sendMessage(component);
     }
 
     public static void sendSenderMessage(CommandSender sender, String message) {
-        TextComponent component = ChatUtils.colorize(message);
+        Component component = ChatUtils.colorize(message);
         sender.sendMessage(component);
     }
 
-    public static List<TextComponent> colorize(List<String> message, TagResolver... placeholders) {
+    public static List<Component> colorize(List<String> message, TagResolver... placeholders) {
         return message.stream().map(m -> colorize(m, placeholders)).toList();
     }
 
-    public static TextComponent colorize(String message, TagResolver... placeholders) {
+    public static Component colorize(String message, TagResolver... placeholders) {
         if (message == null) return Component.text("null text");
 
-        return (TextComponent) MINI_MESSAGE.deserialize(message, placeholders);
+        return MINI_MESSAGE.deserialize(message, placeholders);
     }
 
-    public static String convert(TextComponent component) {
+    public static String convert(Component component) {
         return LEGACY_COMPONENT_SERIALIZER.serialize(component);
     }
 

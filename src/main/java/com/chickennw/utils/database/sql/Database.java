@@ -1,8 +1,8 @@
 package com.chickennw.utils.database.sql;
 
+import com.chickennw.utils.models.config.database.DatabaseConfiguration;
 import jakarta.persistence.Entity;
 import lombok.Getter;
-import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
@@ -24,20 +24,19 @@ public abstract class Database {
     protected final ExecutorService executor;
     protected SessionFactory sessionFactory;
 
-    public Database(JavaPlugin plugin) {
-        FileConfiguration config = plugin.getConfig();
-        int threadCount = config.getInt("database.threads");
+    public Database(JavaPlugin plugin, DatabaseConfiguration config) {
+        int threadCount = config.getThreads();
 
-        if (config.getBoolean("enable-virtual-threads")) {
+        if (config.isEnableVirtualThreads()) {
             ThreadFactory factory = Thread.ofVirtual()
-                    .name(plugin.getClass().getSimpleName() + "-database-worker-", 0)
+                    .name(config.getThreadNamePrefix() + "-database-worker-", 0)
                     .uncaughtExceptionHandler((thread, throwable) -> throwable.printStackTrace())
                     .factory();
             executor = Executors.newThreadPerTaskExecutor(factory);
         } else {
             executor = Executors.newFixedThreadPool(threadCount, r -> {
                 Thread t = new Thread(r);
-                t.setName(plugin.getClass().getSimpleName() + "-database-worker-" + t.threadId());
+                t.setName(config.getThreadNamePrefix() + "-database-worker-" + t.threadId());
                 t.setUncaughtExceptionHandler((thread, throwable) -> throwable.printStackTrace());
                 return t;
             });
@@ -47,7 +46,7 @@ public abstract class Database {
             Thread.currentThread().setContextClassLoader(plugin.getClass().getClassLoader());
 
             Configuration configuration = new Configuration();
-            Properties properties = generateProperties(plugin);
+            Properties properties = generateProperties(plugin, config);
             configuration.setProperties(properties);
 
             Reflections reflections = new Reflections(plugin.getClass().getPackage().getName() + ".models");
@@ -64,10 +63,9 @@ public abstract class Database {
         }
     }
 
-    private Properties generateProperties(JavaPlugin plugin) {
+    private Properties generateProperties(JavaPlugin plugin, DatabaseConfiguration config) {
         Properties settings = new Properties();
-        FileConfiguration config = plugin.getConfig();
-        String type = config.getString("database.type");
+        String type = config.getType();
 
         settings.put("hibernate.hbm2ddl.auto", "update");
         settings.put("hibernate.show_sql", "false");
@@ -75,9 +73,9 @@ public abstract class Database {
         settings.put("log4j.logger.org.hibernate.SQL", "DEBUG");
         settings.put("hibernate.connection.provider_class", "org.hibernate.hikaricp.internal.HikariCPConnectionProvider");
 
-        String minIdle = config.getString("database.min-idle");
-        String maxPool = config.getString("database.max-pool");
-        String idleTimeout = config.getString("database.idle-timeout");
+        String minIdle = config.getMysql().getMinIdle();
+        String maxPool = config.getMysql().getMaxPool();
+        String idleTimeout = config.getMysql().getIdleTimeout();
 
         settings.put("hibernate.hikari.minimumIdle", minIdle);
         settings.put("hibernate.hikari.maximumPoolSize", maxPool);
@@ -85,11 +83,11 @@ public abstract class Database {
         settings.put("hibernate.hikari.poolName", plugin.getClass().getSimpleName() + "DatabasePool");
 
         if (type.equalsIgnoreCase("mysql")) {
-            String host = config.getString("database.mysql.host");
-            String port = config.getString("database.mysql.port");
-            String database = config.getString("database.mysql.database");
-            String user = config.getString("database.mysql.user");
-            String password = config.getString("database.mysql.password");
+            String host = config.getMysql().getHost();
+            String port = config.getMysql().getPort();
+            String database = config.getMysql().getDatabase();
+            String user = config.getMysql().getUser();
+            String password = config.getMysql().getPassword();
             String url = String.format("jdbc:mariadb://%s:%s/%s", host, port, database);
 
             //settings.put("hibernate.dialect", "org.hibernate.dialect.MySQLDialect");
