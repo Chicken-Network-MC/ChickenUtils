@@ -145,6 +145,15 @@
             <id>essentials-releases</id>
             <url>https://repo.essentialsx.net/releases/</url>
         </repository>
+        <repository>
+            <id>bg-repo</id>
+            <url>https://repo.bg-software.com/repository/api/</url>
+        </repository>
+        <repository>
+            <id>iridiumdevelopment</id>
+            <url>https://nexus.iridiumdevelopment.net/repository/maven-releases/</url>
+        </repository>
+
     </repositories>
 
     <dependencies>
@@ -296,6 +305,58 @@
             <version>5.0.9</version>
         </dependency>
 
+        <!--Protection hooks-->
+        <dependency>
+            <groupId>world.bentobox</groupId>
+            <artifactId>bentobox</artifactId>
+            <version>2.2.0</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>world.bentobox</groupId>
+            <artifactId>aoneblock</artifactId>
+            <version>1.10.1</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.bgsoftware</groupId>
+            <artifactId>SuperiorSkyblockAPI</artifactId>
+            <version>2025.1</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.github.angeschossen</groupId>
+            <artifactId>LandsAPI</artifactId>
+            <version>7.11.10</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.iridium</groupId>
+            <artifactId>IridiumSkyblock</artifactId>
+            <version>4.0.8</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.wasteofplastic</groupId>
+            <artifactId>askyblock</artifactId>
+            <version>3.0.9.4</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>dev.espi</groupId>
+            <artifactId>protectionstones</artifactId>
+            <version>2.10.2</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.craftaro</groupId>
+            <artifactId>FabledSkyBlock</artifactId>
+            <version>3.0.6</version>
+            <scope>system</scope>
+            <systemPath>${basedir}/libs/FabledSkyBlock-3.0.6.jar</systemPath>
+        </dependency>
+
+
         <!--Hologram Hooks-->
         <dependency>
             <groupId>com.github.decentsoftware-eu</groupId>
@@ -314,6 +375,20 @@
             <artifactId>FancyHolograms</artifactId>
             <version>2.5.0</version>
             <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>net.Zrips</groupId>
+            <artifactId>CMILib</artifactId>
+            <version>latest</version>
+            <scope>system</scope>
+            <systemPath>${basedir}/libs/CMILib1.4.5.2.jar</systemPath>
+        </dependency>
+        <dependency>
+            <groupId>net.Zrips</groupId>
+            <artifactId>CMI-API</artifactId>
+            <version>latest</version>
+            <scope>system</scope>
+            <systemPath>${basedir}/libs/CMI-API9.6.5.0.jar</systemPath>
         </dependency>
 
         <!--Price hooks-->
@@ -334,6 +409,20 @@
             <artifactId>shopgui-api</artifactId>
             <version>3.0.0</version>
             <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.serbob</groupId>
+            <artifactId>DonutWorth</artifactId>
+            <version>latest</version>
+            <scope>system</scope>
+            <systemPath>${basedir}/libs/DonutWorth-1.5.2-release-17.jar</systemPath>
+        </dependency>
+        <dependency>
+            <groupId>me.qKing12</groupId>
+            <artifactId>RoyaleEconomy</artifactId>
+            <version>1.0</version>
+            <scope>system</scope>
+            <systemPath>${basedir}/libs/RoyaleEconomyAPI.jar</systemPath>
         </dependency>
         <dependency>
             <groupId>com.github.MilkBowl</groupId>

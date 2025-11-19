@@ -1,8 +1,9 @@
 package com.chickennw.utils.managers;
 
+import com.chickennw.utils.logger.Logger;
+import com.chickennw.utils.logger.LoggerFactory;
 import com.chickennw.utils.models.hooks.AbstractPluginHook;
 import com.chickennw.utils.models.hooks.PluginHook;
-import com.chickennw.utils.models.hooks.impl.other.PlaceholderApiHook;
 import com.chickennw.utils.models.hooks.types.OtherHook;
 import org.bukkit.Bukkit;
 import org.reflections.Reflections;
@@ -16,7 +17,7 @@ public class HookManager {
 
     private static HookManager instance;
     private final List<AbstractPluginHook> loadedHooks = new ArrayList<>();
-    private PlaceholderApiHook placeholderApiHook;
+    private final Logger logger;
 
     public static synchronized HookManager getInstance() {
         if (instance == null) {
@@ -27,6 +28,7 @@ public class HookManager {
     }
 
     private HookManager() {
+        logger = LoggerFactory.getLogger();
         loadAllHooks("com.chickennw.utils.models.hooks");
     }
 
@@ -35,7 +37,7 @@ public class HookManager {
         if (hook.isRequirePlugin() && !Bukkit.getPluginManager().isPluginEnabled(hook.getRequiredPlugin())) return;
 
         hook.load();
-        Bukkit.getLogger().info("Loaded new hook: " + hook.getName());
+        logger.info("Loaded new hook: " + hook.getName());
         loadedHooks.add(hook);
     }
 
@@ -51,26 +53,17 @@ public class HookManager {
             try {
                 AbstractPluginHook hook = hookClass.newInstance();
                 loadHook(hook);
-            } catch (InstantiationException | IllegalAccessException e) {
-                e.printStackTrace();
+            } catch (InstantiationException | IllegalAccessException ex) {
+                logger.error(ex.getMessage(), ex);
             } catch (NoClassDefFoundError ignored) {
-                Bukkit.getLogger().info("NoClassDefFoundError on " + hookClass.getName());
+                logger.info("NoClassDefFoundError on " + hookClass.getName());
             }
-        }
-
-        if (Bukkit.getPluginManager().isPluginEnabled("PlaceholderAPI")) {
-            placeholderApiHook = new PlaceholderApiHook();
-            placeholderApiHook.load();
         }
     }
 
     public void unloadAllHooks() {
         for (AbstractPluginHook hook : loadedHooks) {
             hook.unload();
-        }
-
-        if (placeholderApiHook != null) {
-            placeholderApiHook.unload();
         }
     }
 
