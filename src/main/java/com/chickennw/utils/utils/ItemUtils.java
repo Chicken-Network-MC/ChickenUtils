@@ -1,10 +1,7 @@
 package com.chickennw.utils.utils;
 
-import com.chickennw.api.utils.HeadUtils;
 import com.chickennw.utils.ChickenUtils;
 import com.cryptomorin.xseries.XMaterial;
-import com.cryptomorin.xseries.profiles.builder.XSkull;
-import com.cryptomorin.xseries.profiles.objects.Profileable;
 import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
@@ -13,11 +10,8 @@ import org.bukkit.inventory.ItemStack;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ConcurrentHashMap;
 
 public class ItemUtils {
-
-    private static final ConcurrentHashMap<String, ItemStack> cachedPlayerHeads = new ConcurrentHashMap<>();
 
     public static CompletableFuture<ItemStack> parseItemStack(String rawMaterial, UUID player) {
         if (rawMaterial == null) return CompletableFuture.completedFuture(new ItemStack(Material.STONE));
@@ -60,7 +54,7 @@ public class ItemUtils {
     }
 
     public static ItemStack parseTexture(String texture) {
-        return ItemUtils.getCachedItem(texture);
+        return HeadUtils.getHead(texture).join();
     }
 
     public static Material parseMaterial(String name) {
@@ -70,20 +64,5 @@ public class ItemUtils {
             ChickenUtils.getPlugin().getLogger().severe("Invalid material name: " + name);
             return Material.STONE;
         }
-    }
-
-    private static ItemStack getCachedItem(String key) {
-        ItemStack item = cachedPlayerHeads.get(key);
-
-        if (item == null) {
-            try {
-                item = XSkull.createItem().profile(Profileable.detect(key)).apply();
-                cachedPlayerHeads.put(key, item);
-            } catch (Exception e) {
-                return new ItemStack(Material.PLAYER_HEAD);
-            }
-        }
-
-        return item;
     }
 }

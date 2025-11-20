@@ -1,6 +1,7 @@
 package com.chickennw.utils.database.sql;
 
 import com.chickennw.utils.models.config.database.DatabaseConfiguration;
+import com.chickennw.utils.models.config.head.HeadEntity;
 import jakarta.persistence.Entity;
 import lombok.Getter;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -55,6 +56,7 @@ public abstract class Database {
                 plugin.getSLF4JLogger().info("Loading entity class: {}", entityClass.getSimpleName());
                 configuration.addAnnotatedClass(entityClass);
             }
+            configuration.addAnnotatedClass(HeadEntity.class);
 
             StandardServiceRegistryBuilder builder = new StandardServiceRegistryBuilder().applySettings(configuration.getProperties());
             sessionFactory = configuration.buildSessionFactory(builder.build());

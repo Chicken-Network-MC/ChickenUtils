@@ -15,6 +15,7 @@ public class DatabaseConfiguration extends OkaeriConfig {
     private int saveIntervalInMinutes = 15;
     private boolean enableVirtualThreads = true;
     private String threadNamePrefix = "utils";
+    private int batchSaveSize = 500;
     private MySQL mysql = new MySQL();
 
     @Setter
@@ -29,7 +30,5 @@ public class DatabaseConfiguration extends OkaeriConfig {
         private String minIdle = "15";
         private String maxPool = "30";
         private String idleTimeout = "30000";
-
     }
-
 }
