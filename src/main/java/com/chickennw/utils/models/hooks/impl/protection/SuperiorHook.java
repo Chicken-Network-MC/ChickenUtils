@@ -27,7 +27,7 @@ import java.util.UUID;
 public class SuperiorHook extends AbstractPluginHook implements ProtectionHook, Listener {
 
     public SuperiorHook() {
-        super("Superior Skyblock Hook", true, "SuperiorSkyblock");
+        super("Superior Skyblock Hook", true, "SuperiorSkyblock2");
     }
 
     @Override

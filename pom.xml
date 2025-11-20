@@ -74,6 +74,10 @@
                                     <pattern>eu.okaeri</pattern>
                                     <shadedPattern>com.chickennw.utils.libs.config</shadedPattern>
                                 </relocation>
+                                <relocation>
+                                    <pattern>de.tr7zw.changeme.nbtapi</pattern>
+                                    <shadedPattern>com.chickennw.utils.libs.nbtapi</shadedPattern>
+                                </relocation>
                             </relocations>
                             <filters>
                                 <filter>
@@ -197,7 +201,7 @@
         <dependency>
             <groupId>de.tr7zw</groupId>
             <artifactId>item-nbt-api</artifactId>
-            <version>2.15.1</version>
+            <version>2.15.3</version>
         </dependency>
 
         <!--bStats for statistics-->

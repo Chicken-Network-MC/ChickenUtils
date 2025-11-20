@@ -10,9 +10,11 @@ import org.reflections.Reflections;
 
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
+@SuppressWarnings("unused")
 public class HookManager {
 
     private static HookManager instance;
@@ -69,7 +71,7 @@ public class HookManager {
 
     @SuppressWarnings("unchecked")
     public <T extends PluginHook> T getHookWithType(Class<T> hookClass) {
-        return (T) loadedHooks.stream().filter(hook -> hook.getClass().getInterfaces()[0].equals(hookClass))
+        return (T) loadedHooks.stream().filter(hook -> Arrays.stream(hook.getClass().getInterfaces()).toList().contains(hookClass))
                 .findFirst()
                 .orElse(null);
     }
