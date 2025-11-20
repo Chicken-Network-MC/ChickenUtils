@@ -25,13 +25,12 @@ import java.util.UUID;
 public class BentoBoxHook extends AbstractPluginHook implements ProtectionHook, Listener {
 
     public BentoBoxHook() {
-        super("Superior Skyblock Hook", true, "SuperiorSkyblock");
-        Bukkit.getServer().getPluginManager().registerEvents(this, ChickenUtils.getPlugin());
+        super("Superior Skyblock Hook", true, "BentoBox");
     }
 
     @Override
     public void load() {
-
+        Bukkit.getServer().getPluginManager().registerEvents(this, ChickenUtils.getPlugin());
     }
 
     @Override

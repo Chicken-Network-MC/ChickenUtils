@@ -25,17 +25,16 @@ import java.util.UUID;
 
 public class LandsHook extends AbstractPluginHook implements ProtectionHook, Listener {
 
-    private final LandsIntegration landsIntegration;
+    private LandsIntegration landsIntegration;
 
     public LandsHook() {
-        super("Superior Skyblock Hook", true, "SuperiorSkyblock");
-        landsIntegration = LandsIntegration.of(ChickenUtils.getPlugin());
-        Bukkit.getServer().getPluginManager().registerEvents(this, ChickenUtils.getPlugin());
+        super("Superior Skyblock Hook", true, "Lands");
     }
 
     @Override
     public void load() {
-
+        landsIntegration = LandsIntegration.of(ChickenUtils.getPlugin());
+        Bukkit.getServer().getPluginManager().registerEvents(this, ChickenUtils.getPlugin());
     }
 
     @Override

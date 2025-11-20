@@ -21,13 +21,12 @@ import java.util.UUID;
 public class ProtectionStonesHook extends AbstractPluginHook implements ProtectionHook, Listener {
 
     public ProtectionStonesHook() {
-        super("Superior Skyblock Hook", true, "SuperiorSkyblock");
-        Bukkit.getServer().getPluginManager().registerEvents(this, ChickenUtils.getPlugin());
+        super("Superior Skyblock Hook", true, "ProtectionStones");
     }
 
     @Override
     public void load() {
-
+        Bukkit.getServer().getPluginManager().registerEvents(this, ChickenUtils.getPlugin());
     }
 
     @Override

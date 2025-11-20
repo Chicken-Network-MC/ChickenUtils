@@ -28,12 +28,11 @@ public class SuperiorHook extends AbstractPluginHook implements ProtectionHook, 
 
     public SuperiorHook() {
         super("Superior Skyblock Hook", true, "SuperiorSkyblock");
-        Bukkit.getServer().getPluginManager().registerEvents(this, ChickenUtils.getPlugin());
     }
 
     @Override
     public void load() {
-
+        Bukkit.getServer().getPluginManager().registerEvents(this, ChickenUtils.getPlugin());
     }
 
     @Override
