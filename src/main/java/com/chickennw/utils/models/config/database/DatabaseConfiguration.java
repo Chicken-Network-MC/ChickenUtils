@@ -27,8 +27,8 @@ public class DatabaseConfiguration extends OkaeriConfig {
         private String database = "db";
         private String user = "user";
         private String password = "mypassword";
-        private String minIdle = "15";
-        private String maxPool = "30";
+        private String minIdle = "5";
+        private String maxPool = "5";
         private String idleTimeout = "30000";
     }
 }
