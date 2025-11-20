@@ -100,16 +100,17 @@ public abstract class Database {
         } else {
             String path = plugin.getDataFolder().getAbsolutePath();
             settings.put("hibernate.connection.driver_class", "org.h2.Driver");
-            settings.put("hibernate.connection.url", "jdbc:h2:" + path + "/database;AUTO_RECONNECT=TRUE;FILE_LOCK=NO");
+            settings.put("hibernate.connection.url", "jdbc:h2:" + path + "/database;" +
+                    "DB_CLOSE_ON_EXIT=TRUE;" +
+                    "AUTO_RECONNECT=TRUE;" +
+                    "FILE_LOCK=FS");
         }
 
         return settings;
     }
 
     public CompletableFuture<Void> save(Object object) {
-        return CompletableFuture.runAsync(() -> {
-            saveSync(object);
-        }, executor);
+        return CompletableFuture.runAsync(() -> saveSync(object), executor);
     }
 
     public void saveSync(Object object) {
