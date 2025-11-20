@@ -7,6 +7,7 @@ import com.cryptomorin.xseries.profiles.builder.XSkull;
 import com.cryptomorin.xseries.profiles.objects.Profileable;
 import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.Optional;
@@ -22,14 +23,11 @@ public class ItemUtils {
         if (rawMaterial == null) return CompletableFuture.completedFuture(new ItemStack(Material.STONE));
 
         if (rawMaterial.contains("HEAD-")) {
-            rawMaterial = rawMaterial.replace("HEAD-", "");
-            return HeadUtils.getHead(rawMaterial);
+            return ItemUtils.parseItemStack(rawMaterial);
         } else if (rawMaterial.equalsIgnoreCase("player")) {
             return HeadUtils.getHead(player);
         } else {
-            Optional<XMaterial> optMaterial = XMaterial.matchXMaterial(rawMaterial);
-            XMaterial material = optMaterial.orElse(XMaterial.STONE);
-            return CompletableFuture.completedFuture(material.parseItem());
+            return ItemUtils.parseItemStack(rawMaterial);
         }
     }
 
@@ -38,6 +36,27 @@ public class ItemUtils {
 
         if (rawMaterial.equalsIgnoreCase("player")) return HeadUtils.getHead(player);
         return ItemUtils.parseItemStack(rawMaterial, player.getUniqueId());
+    }
+
+    public static CompletableFuture<ItemStack> parseItemStack(String rawMaterial) {
+        if (rawMaterial == null) return CompletableFuture.completedFuture(new ItemStack(Material.STONE));
+
+        if (rawMaterial.contains("HEAD-")) {
+            rawMaterial = rawMaterial.replace("HEAD-", "");
+            return HeadUtils.getHead(rawMaterial);
+        } else {
+            Optional<XMaterial> optMaterial = XMaterial.matchXMaterial(rawMaterial);
+            XMaterial material = optMaterial.orElse(XMaterial.STONE);
+            return CompletableFuture.completedFuture(material.parseItem());
+        }
+    }
+
+    public static CompletableFuture<ItemStack> parseItemStack(UUID uuid) {
+        return HeadUtils.getHead(uuid);
+    }
+
+    public static CompletableFuture<ItemStack> parseItemStack(Player player) {
+        return HeadUtils.getHead(player);
     }
 
     public static ItemStack parseTexture(String texture) {
