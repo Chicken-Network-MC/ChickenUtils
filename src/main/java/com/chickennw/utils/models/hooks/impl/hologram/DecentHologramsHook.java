@@ -30,7 +30,7 @@ public class DecentHologramsHook extends AbstractPluginHook implements HologramH
 
     @Override
     public boolean isEnabled() {
-        return hooksYaml.getBoolean("hologram-hooks.decent-holograms", false);
+        return hooksYaml.getBoolean("hologram-hooks.decent-holograms", true);
     }
 
     @Override

@@ -43,7 +43,7 @@ public class FancyHologramsHook extends AbstractPluginHook implements HologramHo
 
     @Override
     public boolean isEnabled() {
-        return hooksYaml.getBoolean("hologram-hooks.fancy-holograms", false);
+        return hooksYaml.getBoolean("hologram-hooks.fancy-holograms", true);
     }
 
     @Override

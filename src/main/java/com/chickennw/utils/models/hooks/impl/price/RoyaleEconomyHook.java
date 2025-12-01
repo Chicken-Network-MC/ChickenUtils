@@ -25,7 +25,7 @@ public class RoyaleEconomyHook extends AbstractPluginHook implements PriceHook {
 
     @Override
     public boolean isEnabled() {
-        return hooksYaml.getBoolean("price-hooks.royale-economy-hook", false);
+        return hooksYaml.getBoolean("price-hooks.royale-economy-hook", true);
     }
 
     @Override

@@ -27,7 +27,7 @@ public class CMIHologramHook extends AbstractPluginHook implements HologramHook 
 
     @Override
     public boolean isEnabled() {
-        return hooksYaml.getBoolean("hologram-hooks.cmi", false);
+        return hooksYaml.getBoolean("hologram-hooks.cmi", true);
     }
 
     @Override

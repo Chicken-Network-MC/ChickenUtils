@@ -1,5 +1,7 @@
 package com.chickennw.utils.database.sql;
 
+import com.chickennw.utils.logger.Logger;
+import com.chickennw.utils.logger.LoggerFactory;
 import com.chickennw.utils.models.config.database.DatabaseConfiguration;
 import com.chickennw.utils.models.config.head.HeadEntity;
 import jakarta.persistence.Entity;
@@ -23,9 +25,11 @@ import java.util.concurrent.ThreadFactory;
 public abstract class Database {
 
     protected final ExecutorService executor;
+    protected final Logger logger;
     protected SessionFactory sessionFactory;
 
     public Database(JavaPlugin plugin, DatabaseConfiguration config) {
+        logger = LoggerFactory.getLogger();
         int threadCount = config.getThreads();
 
         if (config.isEnableVirtualThreads()) {
@@ -83,6 +87,10 @@ public abstract class Database {
         settings.put("hibernate.hikari.maximumPoolSize", maxPool);
         settings.put("hibernate.hikari.idleTimeout", idleTimeout);
         settings.put("hibernate.hikari.poolName", plugin.getClass().getSimpleName() + "DatabasePool");
+        settings.put("hibernate.hikari.maxLifetime", "600000");
+        settings.put("hibernate.hikari.connectionTimeout", "20000");
+        settings.put("hibernate.hikari.leakDetectionThreshold", "60000");
+        settings.put("hibernate.hikari.autoCommit", "true");
 
         if (type.equalsIgnoreCase("mysql")) {
             String host = config.getMysql().getHost();
@@ -102,7 +110,8 @@ public abstract class Database {
             settings.put("hibernate.connection.driver_class", "org.h2.Driver");
             settings.put("hibernate.connection.url", "jdbc:h2:" + path + "/database;" +
                     "DB_CLOSE_ON_EXIT=TRUE;" +
-                    "AUTO_RECONNECT=TRUE;" +
+                    "CACHE_SIZE=8192;" +
+                    "MV_STORE=TRUE;" +
                     "FILE_LOCK=FS");
         }
 
@@ -140,6 +149,10 @@ public abstract class Database {
 
     public void close() {
         executor.shutdown();
-        if (sessionFactory != null) sessionFactory.close();
+        if (sessionFactory != null && !sessionFactory.isClosed()) {
+            sessionFactory.close();
+        }
+
+        logger.info("Database closed successfully.");
     }
 }
