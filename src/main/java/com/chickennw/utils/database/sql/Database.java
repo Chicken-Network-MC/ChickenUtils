@@ -1,5 +1,6 @@
 package com.chickennw.utils.database.sql;
 
+import com.chickennw.utils.ChickenUtils;
 import com.chickennw.utils.logger.Logger;
 import com.chickennw.utils.logger.LoggerFactory;
 import com.chickennw.utils.models.config.database.DatabaseConfiguration;
@@ -14,6 +15,7 @@ import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import org.hibernate.cfg.Configuration;
 import org.reflections.Reflections;
 
+import java.io.File;
 import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
@@ -24,6 +26,7 @@ import java.util.concurrent.ThreadFactory;
 @Getter
 public abstract class Database {
 
+    private final String BACKUP_FOLDER = "backup";
     protected final ExecutorService executor;
     protected final Logger logger;
     protected SessionFactory sessionFactory;
@@ -35,14 +38,14 @@ public abstract class Database {
         if (config.isEnableVirtualThreads()) {
             ThreadFactory factory = Thread.ofVirtual()
                     .name(config.getThreadNamePrefix() + "-database-worker-", 0)
-                    .uncaughtExceptionHandler((thread, throwable) -> throwable.printStackTrace())
+                    .uncaughtExceptionHandler((thread, throwable) -> logger.error(throwable))
                     .factory();
             executor = Executors.newThreadPerTaskExecutor(factory);
         } else {
             executor = Executors.newFixedThreadPool(threadCount, r -> {
                 Thread t = new Thread(r);
                 t.setName(config.getThreadNamePrefix() + "-database-worker-" + t.threadId());
-                t.setUncaughtExceptionHandler((thread, throwable) -> throwable.printStackTrace());
+                t.setUncaughtExceptionHandler((thread, throwable) -> logger.error(throwable));
                 return t;
             });
         }
@@ -64,8 +67,11 @@ public abstract class Database {
 
             StandardServiceRegistryBuilder builder = new StandardServiceRegistryBuilder().applySettings(configuration.getProperties());
             sessionFactory = configuration.buildSessionFactory(builder.build());
+
+            backup();
+            deleteOldBackups();
         } catch (Throwable ex) {
-            ex.printStackTrace();
+            logger.error(ex.getMessage(), ex);
         }
     }
 
@@ -147,6 +153,28 @@ public abstract class Database {
         }
     }
 
+    public void backup() {
+        try (Session session = sessionFactory.openSession()) {
+            session.beginTransaction();
+
+            File dataFolder = ChickenUtils.getPlugin().getDataFolder();
+            File backupDir = new File(dataFolder, BACKUP_FOLDER);
+            if (!backupDir.exists()) {
+                backupDir.mkdirs();
+            }
+
+            String fileName = "backup_" + System.currentTimeMillis() + ".zip";
+            String backupPath = new File(backupDir, fileName).getAbsolutePath();
+
+            String sql = "BACKUP TO '" + backupPath + "'";
+            session.createNativeQuery(sql).executeUpdate();
+            session.getTransaction().commit();
+            logger.info("Backup success.");
+        } catch (Exception e) {
+            logger.error(e.getMessage(), e);
+        }
+    }
+
     public void close() {
         executor.shutdown();
         if (sessionFactory != null && !sessionFactory.isClosed()) {
@@ -154,5 +182,29 @@ public abstract class Database {
         }
 
         logger.info("Database closed successfully.");
+    }
+
+    private void deleteOldBackups() {
+        File dataFolder = ChickenUtils.getPlugin().getDataFolder();
+        File backupDir = new File(dataFolder, BACKUP_FOLDER);
+        if (!backupDir.exists()) {
+            return;
+        }
+
+        File[] files = backupDir.listFiles();
+        if (files == null) {
+            return;
+        }
+
+        long cutoff = System.currentTimeMillis() - (14L * 24 * 60 * 60 * 1000); // 14 days
+        for (File file : files) {
+            if (file.isFile() && file.lastModified() < cutoff) {
+                if (file.delete()) {
+                    logger.info("Deleted old backup file: " + file.getName());
+                } else {
+                    logger.warn("Failed to delete old backup file: " + file.getName());
+                }
+            }
+        }
     }
 }
