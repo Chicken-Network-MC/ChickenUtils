@@ -68,7 +68,6 @@ public abstract class Database {
             StandardServiceRegistryBuilder builder = new StandardServiceRegistryBuilder().applySettings(configuration.getProperties());
             sessionFactory = configuration.buildSessionFactory(builder.build());
 
-            backup();
             deleteOldBackups();
         } catch (Throwable ex) {
             logger.error(ex.getMessage(), ex);
