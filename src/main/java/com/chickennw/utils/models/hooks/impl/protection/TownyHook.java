@@ -20,10 +20,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-public class TownyAdvancedHook extends AbstractPluginHook implements ProtectionHook, Listener {
+public class TownyHook extends AbstractPluginHook implements ProtectionHook, Listener {
 
-    public TownyAdvancedHook() {
-        super("Towny Advanced Hook", true, "TownyAdvanced");
+    public TownyHook() {
+        super("Towny Hook", true, "Towny");
     }
 
     @Override
@@ -38,7 +38,7 @@ public class TownyAdvancedHook extends AbstractPluginHook implements ProtectionH
 
     @Override
     public boolean isEnabled() {
-        return hooksYaml.getBoolean("protection-hooks.towny-advanced", true);
+        return hooksYaml.getBoolean("protection-hooks.towny", true);
     }
 
     @Override
