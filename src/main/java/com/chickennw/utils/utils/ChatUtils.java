@@ -53,8 +53,8 @@ public class ChatUtils {
         return message.stream().map(m -> colorize(m, placeholders)).toList();
     }
 
-    public static List<String> colorizeLegacy(List<String> message) {
-        return message.stream().map(ChatUtils::colorizeLegacy).toList();
+    public static List<String> colorizeLegacy(List<String> message, Variable... variables) {
+        return message.stream().map(s -> colorizeLegacy(s, variables)).toList();
     }
 
     public static Component colorize(String message, TagResolver... placeholders) {
@@ -67,8 +67,11 @@ public class ChatUtils {
         return LEGACY_COMPONENT_SERIALIZER.serialize(component);
     }
 
-    public static String colorizeLegacy(String message) {
+    public static String colorizeLegacy(String message, Variable... variables) {
         if (message == null) return "null text";
+
+        for (Variable variable : variables)
+            message = message.replace(variable.key(), variable.value());
 
         //message = message.replace("&", "§");
         try {
