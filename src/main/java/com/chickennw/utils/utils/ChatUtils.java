@@ -53,6 +53,10 @@ public class ChatUtils {
         return message.stream().map(m -> colorize(m, placeholders)).toList();
     }
 
+    public static List<String> colorizeLegacy(List<String> message) {
+        return message.stream().map(ChatUtils::colorizeLegacy).toList();
+    }
+
     public static Component colorize(String message, TagResolver... placeholders) {
         if (message == null) return Component.text("null text");
 
