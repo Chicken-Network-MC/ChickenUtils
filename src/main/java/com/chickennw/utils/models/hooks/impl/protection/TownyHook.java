@@ -110,7 +110,7 @@ public class TownyHook extends AbstractPluginHook implements ProtectionHook, Lis
     }
 
     @EventHandler
-    public void onIslandDisband(TownRuinedEvent event) {
+    public void onTownDisband(TownRuinedEvent event) {
         Town town = event.getTown();
         List<UUID> members = town.getResidents().stream().map(Resident::getUUID).toList();
 
@@ -119,7 +119,7 @@ public class TownyHook extends AbstractPluginHook implements ProtectionHook, Lis
     }
 
     @EventHandler
-    public void onIslandKick(TownKickEvent event) {
+    public void onTownKick(TownKickEvent event) {
         Town town = event.getTown();
         Resident kickedResident = event.getKickedResident();
 

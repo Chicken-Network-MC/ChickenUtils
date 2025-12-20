@@ -10,11 +10,14 @@ import java.util.UUID;
 
 public interface ProtectionHook extends PluginHook {
 
-    @Nullable UUID getIslandUUID(Location loc);
+    @Nullable
+    UUID getIslandUUID(Location loc);
 
-    @Nullable UUID getIslandUUID(Player player);
+    @Nullable
+    UUID getIslandUUID(Player player);
 
-    @Nullable UUID getOwner(Location loc);
+    @Nullable
+    UUID getOwner(Location loc);
 
     List<UUID> getMembers(Location loc);
 
