@@ -123,27 +123,27 @@ public class CommandManager {
         String prefix = config.getString("prefix");
 
         manager.registerMessage(MessageKey.NOT_ENOUGH_ARGUMENTS, (sender, context) -> {
-            sender.sendMessage(ChatUtils.colorize(prefix + lang.getString("too-few-args")));
+            ChatUtils.sendSenderMessage(sender, ChatUtils.colorize(prefix + lang.getString("too-few-args")));
             if (sender instanceof Player) SoundUtils.sendSound((Player) sender, "invalid-command");
         });
 
         manager.registerMessage(MessageKey.TOO_MANY_ARGUMENTS, (sender, context) -> {
-            sender.sendMessage(ChatUtils.colorize(prefix + lang.getString("too-many-args")));
+            ChatUtils.sendSenderMessage(sender, ChatUtils.colorize(prefix + lang.getString("too-many-args")));
             if (sender instanceof Player) SoundUtils.sendSound((Player) sender, "invalid-command");
         });
 
         manager.registerMessage(MessageKey.INVALID_ARGUMENT, (sender, context) -> {
-            sender.sendMessage(ChatUtils.colorize(prefix + lang.getString("invalid-arg")));
+            ChatUtils.sendSenderMessage(sender, ChatUtils.colorize(prefix + lang.getString("invalid-arg")));
             if (sender instanceof Player) SoundUtils.sendSound((Player) sender, lang.getString("invalid-command"));
         });
 
         manager.registerMessage(MessageKey.UNKNOWN_COMMAND, (sender, context) -> {
-            sender.sendMessage(ChatUtils.colorize(prefix + lang.getString("unknown-command")));
+            ChatUtils.sendSenderMessage(sender, ChatUtils.colorize(prefix + lang.getString("unknown-command")));
             if (sender instanceof Player) SoundUtils.sendSound((Player) sender, "invalid-command");
         });
 
         manager.registerMessage(BukkitMessageKey.NO_PERMISSION, (sender, context) -> {
-            sender.sendMessage(ChatUtils.colorize(prefix + lang.getString("no-permission")));
+            ChatUtils.sendSenderMessage(sender, ChatUtils.colorize(prefix + lang.getString("no-permission")));
             if (sender instanceof Player) SoundUtils.sendSound((Player) sender, "no-permission");
         });
     }

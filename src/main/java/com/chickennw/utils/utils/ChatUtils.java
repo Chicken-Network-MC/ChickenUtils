@@ -1,5 +1,6 @@
 package com.chickennw.utils.utils;
 
+import com.chickennw.utils.ChickenUtils;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.TextDecoration;
 import net.kyori.adventure.text.minimessage.MiniMessage;
@@ -36,7 +37,7 @@ public class ChatUtils {
     }
 
     public static void sendSenderMessage(CommandSender sender, Component component) {
-        sender.sendMessage(component);
+        ChickenUtils.getBukkitAudience().sender(sender).sendMessage(component);
     }
 
     public static void sendPlayerMessage(Player player, String message) {
@@ -46,7 +47,7 @@ public class ChatUtils {
 
     public static void sendSenderMessage(CommandSender sender, String message) {
         Component component = ChatUtils.colorize(message);
-        sender.sendMessage(component);
+        ChickenUtils.getBukkitAudience().sender(sender).sendMessage(component);
     }
 
     public static List<Component> colorize(List<String> message, TagResolver... placeholders) {
