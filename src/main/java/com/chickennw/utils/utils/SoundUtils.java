@@ -15,7 +15,7 @@ public class SoundUtils {
 
     public static void sendSound(Player p, String configPath) {
         if (sounds == null) {
-            File soundsFile = new File(ChickenUtils.getPlugin().getDataFolder(), "sounds.yml");
+            File soundsFile = new File(ChickenUtils.getPlugin().getDataFolder(), "Sounds.yml");
             sounds = YamlConfiguration.loadConfiguration(soundsFile);
         }
 

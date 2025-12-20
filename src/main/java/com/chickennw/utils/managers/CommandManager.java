@@ -35,6 +35,7 @@ public class CommandManager {
     private final List<BaseCommand> commands = new ArrayList<>();
     private final JavaPlugin plugin;
     private final FileConfiguration lang;
+    private final FileConfiguration sounds;
 
     public static CommandManager getInstance() {
         if (instance == null) {
@@ -49,8 +50,11 @@ public class CommandManager {
 
         manager = BukkitCommandManager.create(plugin);
 
-        File langFile = new File(plugin.getDataFolder(), "lang.yml");
+        File langFile = new File(plugin.getDataFolder(), "Lang.yml");
         lang = YamlConfiguration.loadConfiguration(langFile);
+
+        File soundsFile = new File(plugin.getDataFolder(), "Sounds.yml");
+        sounds = YamlConfiguration.loadConfiguration(soundsFile);
 
         registerSuggestions();
         registerMessages();
@@ -134,7 +138,7 @@ public class CommandManager {
 
         manager.registerMessage(MessageKey.INVALID_ARGUMENT, (sender, context) -> {
             ChatUtils.sendSenderMessage(sender, ChatUtils.colorize(prefix + lang.getString("invalid-arg")));
-            if (sender instanceof Player) SoundUtils.sendSound((Player) sender, lang.getString("invalid-command"));
+            if (sender instanceof Player) SoundUtils.sendSound((Player) sender, "invalid-command");
         });
 
         manager.registerMessage(MessageKey.UNKNOWN_COMMAND, (sender, context) -> {
