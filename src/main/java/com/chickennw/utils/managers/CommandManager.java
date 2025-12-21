@@ -35,7 +35,6 @@ public class CommandManager {
     private final List<BaseCommand> commands = new ArrayList<>();
     private final JavaPlugin plugin;
     private final FileConfiguration lang;
-    private final FileConfiguration sounds;
 
     public static CommandManager getInstance() {
         if (instance == null) {
@@ -52,9 +51,6 @@ public class CommandManager {
 
         File langFile = new File(plugin.getDataFolder(), "Lang.yml");
         lang = YamlConfiguration.loadConfiguration(langFile);
-
-        File soundsFile = new File(plugin.getDataFolder(), "Sounds.yml");
-        sounds = YamlConfiguration.loadConfiguration(soundsFile);
 
         registerSuggestions();
         registerMessages();
@@ -128,27 +124,27 @@ public class CommandManager {
 
         manager.registerMessage(MessageKey.NOT_ENOUGH_ARGUMENTS, (sender, context) -> {
             ChatUtils.sendSenderMessage(sender, ChatUtils.colorize(prefix + lang.getString("too-few-args")));
-            if (sender instanceof Player) SoundUtils.sendSound((Player) sender, "invalid-command");
+            if (sender instanceof Player player) SoundUtils.sendSound(player, "invalid-command");
         });
 
         manager.registerMessage(MessageKey.TOO_MANY_ARGUMENTS, (sender, context) -> {
             ChatUtils.sendSenderMessage(sender, ChatUtils.colorize(prefix + lang.getString("too-many-args")));
-            if (sender instanceof Player) SoundUtils.sendSound((Player) sender, "invalid-command");
+            if (sender instanceof Player player) SoundUtils.sendSound(player, "invalid-command");
         });
 
         manager.registerMessage(MessageKey.INVALID_ARGUMENT, (sender, context) -> {
             ChatUtils.sendSenderMessage(sender, ChatUtils.colorize(prefix + lang.getString("invalid-arg")));
-            if (sender instanceof Player) SoundUtils.sendSound((Player) sender, "invalid-command");
+            if (sender instanceof Player player) SoundUtils.sendSound(player, "invalid-command");
         });
 
         manager.registerMessage(MessageKey.UNKNOWN_COMMAND, (sender, context) -> {
             ChatUtils.sendSenderMessage(sender, ChatUtils.colorize(prefix + lang.getString("unknown-command")));
-            if (sender instanceof Player) SoundUtils.sendSound((Player) sender, "invalid-command");
+            if (sender instanceof Player player) SoundUtils.sendSound(player, "invalid-command");
         });
 
         manager.registerMessage(BukkitMessageKey.NO_PERMISSION, (sender, context) -> {
             ChatUtils.sendSenderMessage(sender, ChatUtils.colorize(prefix + lang.getString("no-permission")));
-            if (sender instanceof Player) SoundUtils.sendSound((Player) sender, "no-permission");
+            if (sender instanceof Player player) SoundUtils.sendSound(player, "invalid-command");
         });
     }
 }
