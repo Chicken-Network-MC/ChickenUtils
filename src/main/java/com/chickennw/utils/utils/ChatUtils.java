@@ -41,8 +41,7 @@ public class ChatUtils {
     }
 
     public static void sendPlayerMessage(Player player, String message) {
-        Component component = ChatUtils.colorize(message);
-        player.sendMessage(component);
+        sendSenderMessage(player, message);
     }
 
     public static void sendSenderMessage(CommandSender sender, String message) {

@@ -1,5 +1,10 @@
 package com.chickennw.utils.logger;
 
+import com.chickennw.utils.ChickenUtils;
+import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+
+@Slf4j
 public class LoggerFactory {
 
     private static Logger logger;
@@ -9,9 +14,9 @@ public class LoggerFactory {
 
         try {
             Class.forName("com.destroystokyo.paper.PaperConfig");
-            logger = new PaperLogger();
+            logger = ChickenUtils.getPlugin().getSLF4JLogger();
         } catch (ClassNotFoundException e) {
-            logger = new SpigotLogger();
+            logger = log;
         }
 
         return logger;

@@ -1,7 +1,6 @@
 package com.chickennw.utils.database.sql;
 
 import com.chickennw.utils.ChickenUtils;
-import com.chickennw.utils.logger.Logger;
 import com.chickennw.utils.logger.LoggerFactory;
 import com.chickennw.utils.models.config.database.DatabaseConfiguration;
 import com.chickennw.utils.models.config.head.HeadEntity;
@@ -14,6 +13,7 @@ import org.hibernate.Transaction;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import org.hibernate.cfg.Configuration;
 import org.reflections.Reflections;
+import org.slf4j.Logger;
 
 import java.io.File;
 import java.util.Properties;
@@ -38,14 +38,14 @@ public abstract class Database {
         if (config.isEnableVirtualThreads()) {
             ThreadFactory factory = Thread.ofVirtual()
                     .name(config.getThreadNamePrefix() + "-database-worker-", 0)
-                    .uncaughtExceptionHandler((thread, throwable) -> logger.error(throwable))
+                    .uncaughtExceptionHandler((thread, throwable) -> logger.error(throwable.getMessage(), throwable))
                     .factory();
             executor = Executors.newThreadPerTaskExecutor(factory);
         } else {
             executor = Executors.newFixedThreadPool(threadCount, r -> {
                 Thread t = new Thread(r);
                 t.setName(config.getThreadNamePrefix() + "-database-worker-" + t.threadId());
-                t.setUncaughtExceptionHandler((thread, throwable) -> logger.error(throwable));
+                t.setUncaughtExceptionHandler((thread, throwable) -> logger.error(throwable.getMessage(), throwable));
                 return t;
             });
         }

@@ -1,12 +1,12 @@
 package com.chickennw.utils.managers;
 
-import com.chickennw.utils.logger.Logger;
 import com.chickennw.utils.logger.LoggerFactory;
 import com.chickennw.utils.models.hooks.AbstractPluginHook;
 import com.chickennw.utils.models.hooks.PluginHook;
 import com.chickennw.utils.models.hooks.types.OtherHook;
 import org.bukkit.Bukkit;
 import org.reflections.Reflections;
+import org.slf4j.Logger;
 
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
@@ -58,7 +58,7 @@ public class HookManager {
             } catch (InstantiationException | IllegalAccessException ex) {
                 logger.error(ex.getMessage(), ex);
             } catch (NoClassDefFoundError ignored) {
-                logger.info("NoClassDefFoundError on " + hookClass.getName());
+                logger.info("NoClassDefFoundError on {}", hookClass.getName());
             }
         }
     }

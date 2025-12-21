@@ -24,6 +24,7 @@ import java.util.stream.Collectors;
 
 @Getter
 @Setter
+@SuppressWarnings("unused")
 public class ConfigManager {
 
     private static ConfigManager instance;
@@ -39,12 +40,14 @@ public class ConfigManager {
 
     }
 
-    public void loadOkaeriConfig(Class<? extends OkaeriConfig> clazz) {
+    public void loadOkaeriConfig(Class<? extends OkaeriConfig> clazz, String folder) {
         JavaPlugin plugin = ChickenUtils.getPlugin();
         String fileName = clazz.getSimpleName().replace("File", "") + ".yml";
+        File configFolder = folder == null ? new File(plugin.getDataFolder(), fileName) :
+                new File(plugin.getDataFolder() + File.separator + folder, fileName);
         OkaeriConfig config = eu.okaeri.configs.ConfigManager.create(clazz, (it) -> {
             it.withConfigurer(new YamlBukkitConfigurer(), new SerdesBukkit());
-            it.withBindFile(new File(plugin.getDataFolder(), fileName));
+            it.withBindFile(configFolder);
             it.withRemoveOrphans(true);
             it.saveDefaults();
             it.load(true);
@@ -53,6 +56,10 @@ public class ConfigManager {
         ConfigClassHolder holder = new ConfigClassHolder(config, clazz);
         configClassHolders.add(holder);
         ChickenUtils.getPlugin().getSLF4JLogger().info("Loaded config file: {}", fileName);
+    }
+
+    public void loadOkaeriConfig(Class<? extends OkaeriConfig> clazz) {
+        loadOkaeriConfig(clazz, null);
     }
 
     public void createFiles(String path) {
