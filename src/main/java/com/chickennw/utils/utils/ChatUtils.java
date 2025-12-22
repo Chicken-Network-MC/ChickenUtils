@@ -1,6 +1,7 @@
 package com.chickennw.utils.utils;
 
 import com.chickennw.utils.ChickenUtils;
+import lombok.extern.slf4j.Slf4j;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.TextDecoration;
 import net.kyori.adventure.text.minimessage.MiniMessage;
@@ -13,6 +14,7 @@ import org.bukkit.entity.Player;
 
 import java.util.List;
 
+@Slf4j
 public class ChatUtils {
 
     public static final MiniMessage MINI_MESSAGE = MiniMessage.builder()
@@ -28,25 +30,24 @@ public class ChatUtils {
             .useUnusualXRepeatedCharacterHexFormat()
             .build();
 
-    public static void sendPlayerMessage(Player player, Component component) {
-        player.sendMessage(component);
-    }
-
     public static void broadcastMessage(Component component) {
         Bukkit.getServer().sendMessage(component);
     }
 
-    public static void sendSenderMessage(CommandSender sender, Component component) {
-        ChickenUtils.getBukkitAudience().sender(sender).sendMessage(component);
+    public static void sendMessage(CommandSender sender, Component component) {
+        if (sender instanceof Player player) {
+            ChickenUtils.getBukkitAudience().player(player).sendMessage(component);
+        } else {
+            ChickenUtils.getBukkitAudience().sender(sender).sendMessage(component);
+        }
     }
 
-    public static void sendPlayerMessage(Player player, String message) {
-        sendSenderMessage(player, message);
-    }
-
-    public static void sendSenderMessage(CommandSender sender, String message) {
-        Component component = ChatUtils.colorize(message);
-        ChickenUtils.getBukkitAudience().sender(sender).sendMessage(component);
+    public static void sendMessage(CommandSender sender, String message) {
+        if (sender instanceof Player player) {
+            ChickenUtils.getBukkitAudience().player(player).sendMessage(ChatUtils.colorize(message));
+        } else {
+            sender.sendMessage(ChatUtils.colorizeLegacy(message));
+        }
     }
 
     public static List<Component> colorize(List<String> message, TagResolver... placeholders) {
