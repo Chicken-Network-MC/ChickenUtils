@@ -36,10 +36,17 @@ public class HookManager {
 
     public void loadHook(AbstractPluginHook hook) {
         if (!hook.isEnabled()) return;
-        if (hook.isRequirePlugin() && !Bukkit.getPluginManager().isPluginEnabled(hook.getRequiredPlugin())) return;
+        if (hook.isRequirePlugin()) {
+            boolean enabled = hook.getRequiredPlugins()
+                    .stream()
+                    .anyMatch(plugin -> Bukkit.getPluginManager().isPluginEnabled(plugin));
+            if (!enabled) {
+                return;
+            }
+        }
 
         hook.load();
-        logger.info("Loaded new hook: " + hook.getName());
+        logger.info("Loaded new hook: {}", hook.getName());
         loadedHooks.add(hook);
     }
 

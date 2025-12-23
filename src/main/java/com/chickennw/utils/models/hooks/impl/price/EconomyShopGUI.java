@@ -9,13 +9,14 @@ import me.gypopo.economyshopgui.util.EconomyType;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
+import java.util.List;
 import java.util.Optional;
 
 @SuppressWarnings("unused")
 public class EconomyShopGUI extends AbstractPluginHook implements PriceHook {
 
     public EconomyShopGUI() {
-        super("EconomyShopGUI Price Hook", true, "EconomyShopGUI");
+        super("EconomyShopGUI Price Hook", true, List.of("EconomyShopGUI", "EconomyShopGUI-Premium"));
     }
 
     @Override
