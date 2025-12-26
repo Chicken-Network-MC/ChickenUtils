@@ -13,7 +13,6 @@ import de.themoep.inventorygui.StaticGuiElement;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
-import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -90,6 +89,26 @@ public abstract class LitMenu {
             try {
                 cachedGui = generateInventory(player);
                 createItems(this.player.getUniqueId());
+
+                foliaLib.getScheduler().runAtEntity(player, (playerTask) -> {
+                    cachedGui.show(player);
+                    if (sound != null) {
+                        player.playSound(player.getLocation(), sound, 1f, 1f);
+                    }
+                });
+            } catch (Exception ex) {
+                log.error("Couldn't open menu named: {}", ex.getMessage(), ex);
+            }
+        });
+    }
+
+    public void openAsync(Player player, List<GuiElement> elements) {
+        FoliaLib foliaLib = ChickenUtils.getFoliaLib();
+        foliaLib.getScheduler().runAsync((wrappedTask) -> {
+            try {
+                cachedGui = generateInventory(player);
+                elements.forEach(element -> cachedGui.addElement(element));
+                setFiller(cachedGui);
 
                 foliaLib.getScheduler().runAtEntity(player, (playerTask) -> {
                     cachedGui.show(player);

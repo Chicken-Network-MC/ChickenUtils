@@ -10,6 +10,7 @@ import net.kyori.adventure.text.minimessage.tag.standard.StandardTags;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
+import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 
 import java.util.List;
@@ -47,6 +48,16 @@ public class ChatUtils {
             ChickenUtils.getBukkitAudience().player(player).sendMessage(ChatUtils.colorize(message));
         } else {
             sender.sendMessage(ChatUtils.colorizeLegacy(message));
+        }
+    }
+
+    public static void sendPrefixedMessage(CommandSender sender, String message) {
+        FileConfiguration config = ChickenUtils.getPlugin().getConfig();
+        String prefix = config.getString("prefix");
+        if (sender instanceof Player player) {
+            ChickenUtils.getBukkitAudience().player(player).sendMessage(ChatUtils.colorize(prefix + message));
+        } else {
+            sender.sendMessage(ChatUtils.colorizeLegacy(prefix + message));
         }
     }
 
