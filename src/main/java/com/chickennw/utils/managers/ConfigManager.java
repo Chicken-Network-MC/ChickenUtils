@@ -86,6 +86,10 @@ public class ConfigManager {
         }
     }
 
+    public void reload() {
+        configClassHolders.forEach(holder -> holder.config().load(true));
+    }
+
     private List<Class<? extends OkaeriConfig>> loadClasses() {
         Reflections reflections = new Reflections(ChickenUtils.getPlugin().getClass().getPackage());
         Set<Class<? extends OkaeriConfig>> set = reflections.getSubTypesOf(OkaeriConfig.class);
