@@ -16,7 +16,7 @@ public interface HologramHook extends PluginHook {
     void update(Location location, List<String> lines);
 
     default String locationToString(Location location) {
-        return location.getWorld().getName() + ":" + location.getBlockX() + ":" + location.getBlockY() + ":" + location.getBlockZ();
+        return location.getWorld().getName() + "_" + location.getBlockX() + "_" + location.getBlockY() + "_" + location.getBlockZ();
     }
 
     default List<String> parseColors(List<String> lines) {
