@@ -1,11 +1,11 @@
 package com.chickennw.utils.managers;
 
 import com.chickennw.utils.ChickenUtils;
+import com.chickennw.utils.models.commands.BaseCommand;
 import com.chickennw.utils.utils.ChatUtils;
 import com.chickennw.utils.utils.SoundUtils;
 import dev.triumphteam.cmd.bukkit.BukkitCommandManager;
 import dev.triumphteam.cmd.bukkit.message.BukkitMessageKey;
-import dev.triumphteam.cmd.core.BaseCommand;
 import dev.triumphteam.cmd.core.exceptions.CommandRegistrationException;
 import dev.triumphteam.cmd.core.message.MessageKey;
 import dev.triumphteam.cmd.core.suggestion.SuggestionKey;
@@ -100,12 +100,12 @@ public class CommandManager {
         }
     }
 
-    public void registerSuggestion(SuggestionKey key, @NotNull SuggestionResolver<CommandSender> suggestionResolver) {
+    public void registerSuggestion(SuggestionKey key, @NotNull SuggestionResolver.Simple<CommandSender> suggestionResolver) {
         manager.registerSuggestion(key, suggestionResolver);
     }
 
     private void registerSuggestions() {
-        registerSuggestion(SuggestionKey.of("players"), (sender, context) -> {
+        registerSuggestion(SuggestionKey.of("players"), (sender) -> {
             List<String> players = new ArrayList<>();
             for (Player player : Bukkit.getOnlinePlayers()) {
                 players.add(player.getName());
@@ -113,9 +113,9 @@ public class CommandManager {
             return players;
         });
 
-        registerSuggestion(SuggestionKey.of("amount"), (sender, context) -> List.of("amount"));
+        registerSuggestion(SuggestionKey.of("amount"), (sender) -> List.of("amount"));
 
-        registerSuggestion(SuggestionKey.of("double-suggestion"), (sender, context) -> List.of("10.0", "20.0", "30.0"));
+        registerSuggestion(SuggestionKey.of("double-suggestion"), (sender) -> List.of("10.0", "20.0", "30.0"));
     }
 
     private void registerMessages() {
