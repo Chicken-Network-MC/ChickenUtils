@@ -70,13 +70,7 @@ public class CommandManager {
         commands.forEach(c -> {
             logger.info("Unregistering command: {}", c.getClass().getSimpleName());
             manager.unregisterCommand(c);
-            c.getAlias().forEach(this::unregisterCommand);
-            unregisterCommand(c.getCommand());
         });
-    }
-
-    private void unregisterCommand(String name) {
-        //getBukkitCommands(getCommandMap()).remove(name);
     }
 
     @NotNull
