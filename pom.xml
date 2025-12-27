@@ -175,12 +175,6 @@
             <version>1.21.8-R0.1-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
-        <dependency>
-            <groupId>me.waterarchery</groupId>
-            <artifactId>chickencommons</artifactId>
-            <version>1.0.0</version>
-            <scope>provided</scope>
-        </dependency>
 
         <!-- Text Api -->
         <dependency>
@@ -320,7 +314,7 @@
         <dependency>
             <groupId>de.themoep</groupId>
             <artifactId>inventorygui</artifactId>
-            <version>1.6.5-CHICKENNW</version>
+            <version>1.6.5</version>
             <scope>compile</scope>
         </dependency>
 
