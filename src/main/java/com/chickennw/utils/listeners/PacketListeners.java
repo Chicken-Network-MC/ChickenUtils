@@ -2,7 +2,9 @@ package com.chickennw.utils.listeners;
 
 import com.chickennw.utils.ChickenUtils;
 import com.chickennw.utils.managers.NPCManager;
+import com.github.retrooper.packetevents.PacketEvents;
 import com.github.retrooper.packetevents.event.PacketListener;
+import com.github.retrooper.packetevents.event.PacketListenerPriority;
 import com.github.retrooper.packetevents.event.PacketReceiveEvent;
 import com.github.retrooper.packetevents.protocol.packettype.PacketType;
 import com.github.retrooper.packetevents.wrapper.play.client.WrapperPlayClientInteractEntity;
@@ -17,6 +19,10 @@ import java.util.UUID;
 public class PacketListeners implements PacketListener {
 
     private final List<UUID> recentlyClicked = new ArrayList<>();
+
+    public PacketListeners() {
+        PacketEvents.getAPI().getEventManager().registerListener(this, PacketListenerPriority.NORMAL);
+    }
 
     @Override
     public void onPacketReceive(PacketReceiveEvent event) {

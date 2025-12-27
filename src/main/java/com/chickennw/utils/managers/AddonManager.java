@@ -104,8 +104,8 @@ public class AddonManager {
 
         List<File> addonFiles = new ArrayList<>();
         for (File file : Objects.requireNonNull(addonDir.listFiles())) {
-            logger.info("Found Addon file: {}", file.getAbsolutePath());
             if (file.isFile() && file.getName().endsWith(".jar")) {
+                logger.info("Found Addon file: {}", file.getAbsolutePath());
                 addonFiles.add(file);
             }
         }

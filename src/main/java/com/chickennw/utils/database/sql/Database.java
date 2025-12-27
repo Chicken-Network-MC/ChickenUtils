@@ -114,9 +114,9 @@ public abstract class Database {
             String path = plugin.getDataFolder().getAbsolutePath();
             settings.put("hibernate.connection.driver_class", "org.h2.Driver");
             settings.put("hibernate.connection.url", "jdbc:h2:" + path + "/database;" +
-                    "DB_CLOSE_ON_EXIT=TRUE;" +
+                    "DB_CLOSE_ON_EXIT=FALSE;" +
                     "CACHE_SIZE=8192;" +
-                    "MV_STORE=TRUE;" +
+                    "WRITE_DELAY=1000;" +
                     "FILE_LOCK=FS");
         }
 
@@ -199,9 +199,9 @@ public abstract class Database {
         for (File file : files) {
             if (file.isFile() && file.lastModified() < cutoff) {
                 if (file.delete()) {
-                    logger.info("Deleted old backup file: " + file.getName());
+                    logger.info("Deleted old backup file: {}", file.getName());
                 } else {
-                    logger.warn("Failed to delete old backup file: " + file.getName());
+                    logger.warn("Failed to delete old backup file: {}", file.getName());
                 }
             }
         }
