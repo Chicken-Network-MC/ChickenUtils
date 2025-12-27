@@ -1,6 +1,7 @@
 package com.chickennw.utils.managers;
 
 import com.chickennw.utils.ChickenUtils;
+import com.chickennw.utils.logger.LoggerFactory;
 import com.chickennw.utils.models.commands.BaseCommand;
 import com.chickennw.utils.utils.ChatUtils;
 import com.chickennw.utils.utils.SoundUtils;
@@ -20,6 +21,7 @@ import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
+import org.slf4j.Logger;
 
 import java.io.File;
 import java.lang.reflect.Field;
@@ -31,8 +33,9 @@ import java.util.Map;
 public class CommandManager {
 
     private static CommandManager instance;
-    private final BukkitCommandManager<CommandSender> manager;
     private final List<BaseCommand> commands = new ArrayList<>();
+    private final Logger logger;
+    private final BukkitCommandManager<CommandSender> manager;
     private final JavaPlugin plugin;
     private final FileConfiguration lang;
 
@@ -45,6 +48,7 @@ public class CommandManager {
     }
 
     private CommandManager() {
+        logger = LoggerFactory.getLogger();
         plugin = ChickenUtils.getPlugin();
 
         manager = BukkitCommandManager.create(plugin);
@@ -57,14 +61,14 @@ public class CommandManager {
     }
 
     public <T extends BaseCommand> void registerCommand(T command) {
-        plugin.getSLF4JLogger().info("Registering command: {}", command.getClass().getSimpleName());
+        logger.info("Registering command: {}", command.getClass().getSimpleName());
         manager.registerCommand(command);
         commands.add(command);
     }
 
     public void unregisterCommands() {
         commands.forEach(c -> {
-            plugin.getSLF4JLogger().info("Unregistering command: {}", c.getClass().getSimpleName());
+            logger.info("Unregistering command: {}", c.getClass().getSimpleName());
             manager.unregisterCommand(c);
             c.getAlias().forEach(this::unregisterCommand);
             unregisterCommand(c.getCommand());

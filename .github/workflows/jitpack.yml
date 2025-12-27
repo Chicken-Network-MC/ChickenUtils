@@ -1,0 +1,40 @@
+name: JitPack Build
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  jitpack:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get release tag
+        id: get_tag
+        run: echo "tag=${{ github.event.release.tag_name }}" >> $GITHUB_OUTPUT
+
+      - name: Trigger JitPack build
+        run: |
+          # JitPack build tetikleme
+          echo "Triggering JitPack build for tag: ${{ steps.get_tag.outputs.tag }}"
+          
+          # İlk curl isteği build'i tetikler
+          curl -s "https://jitpack.io/com/github/${{ github.repository }}/${{ steps.get_tag.outputs.tag }}/build.log" || true
+          
+          # Biraz bekle
+          sleep 10
+          
+          # Build durumunu kontrol et
+          curl -s "https://jitpack.io/api/builds/com.github.${{ github.repository_owner }}/${{ github.event.repository.name }}/${{ steps.get_tag.outputs.tag }}"
+
+      - name: Output JitPack URL
+        run: |
+          echo "✅ JitPack build triggered for version ${{ steps.get_tag.outputs.tag }}"
+          echo "📦 Check build status at: https://jitpack.io/#${{ github.repository }}/${{ steps.get_tag.outputs.tag }}"
+          echo ""
+          echo "Maven dependency:"
+          echo "<dependency>"
+          echo "    <groupId>com.github.${{ github.repository_owner }}</groupId>"
+          echo "    <artifactId>${{ github.event.repository.name }}</artifactId>"
+          echo "    <version>${{ steps.get_tag.outputs.tag }}</version>"
+          echo "</dependency>"
+

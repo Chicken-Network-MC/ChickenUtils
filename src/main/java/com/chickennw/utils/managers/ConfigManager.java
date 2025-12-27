@@ -1,6 +1,7 @@
 package com.chickennw.utils.managers;
 
 import com.chickennw.utils.ChickenUtils;
+import com.chickennw.utils.logger.LoggerFactory;
 import com.chickennw.utils.models.config.ConfigClassHolder;
 import eu.okaeri.configs.OkaeriConfig;
 import eu.okaeri.configs.yaml.bukkit.YamlBukkitConfigurer;
@@ -9,6 +10,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.reflections.Reflections;
+import org.slf4j.Logger;
 
 import java.io.File;
 import java.io.IOException;
@@ -19,7 +21,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
-import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 @Getter
@@ -28,6 +29,7 @@ import java.util.stream.Collectors;
 public class ConfigManager {
 
     private static ConfigManager instance;
+    private final Logger logger;
     private final List<ConfigClassHolder> configClassHolders = new ArrayList<>();
 
     public static synchronized ConfigManager getInstance() {
@@ -37,7 +39,7 @@ public class ConfigManager {
     }
 
     private ConfigManager() {
-
+        logger = LoggerFactory.getLogger();
     }
 
     public void loadOkaeriConfig(Class<? extends OkaeriConfig> clazz, String folder) {
@@ -55,7 +57,7 @@ public class ConfigManager {
 
         ConfigClassHolder holder = new ConfigClassHolder(config, clazz);
         configClassHolders.add(holder);
-        ChickenUtils.getPlugin().getSLF4JLogger().info("Loaded config file: {}", fileName);
+        logger.info("Loaded config file: {}", fileName);
     }
 
     public void loadOkaeriConfig(Class<? extends OkaeriConfig> clazz) {
@@ -64,7 +66,6 @@ public class ConfigManager {
 
     public void createFiles(String path) {
         JavaPlugin plugin = ChickenUtils.getPlugin();
-        Logger logger = plugin.getLogger();
         File jarFile = new File(plugin.getClass().getProtectionDomain().getCodeSource().getLocation().getPath());
 
         try {
@@ -77,7 +78,7 @@ public class ConfigManager {
                     if (file.exists()) continue;
 
                     plugin.saveResource(name, false);
-                    logger.info("Generated new file: " + name);
+                    logger.info("Generated new file: {}", name);
                 }
             }
             jar.close();

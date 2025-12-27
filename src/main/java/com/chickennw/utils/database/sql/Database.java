@@ -60,7 +60,7 @@ public abstract class Database {
             Reflections reflections = new Reflections(plugin.getClass().getPackage().getName() + ".models");
             Set<Class<?>> entityClasses = reflections.getTypesAnnotatedWith(Entity.class);
             for (Class<?> entityClass : entityClasses) {
-                plugin.getSLF4JLogger().info("Loading entity class: {}", entityClass.getSimpleName());
+                logger.info("Loading entity class: {}", entityClass.getSimpleName());
                 configuration.addAnnotatedClass(entityClass);
             }
             configuration.addAnnotatedClass(HeadEntity.class);
