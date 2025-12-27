@@ -76,7 +76,7 @@ public class CommandManager {
     }
 
     private void unregisterCommand(String name) {
-        getBukkitCommands(getCommandMap()).remove(name);
+        //getBukkitCommands(getCommandMap()).remove(name);
     }
 
     @NotNull
