@@ -48,14 +48,14 @@ public class FancyHologramsHook extends AbstractPluginHook implements HologramHo
 
     @Override
     public void create(Location location, List<String> lines) {
-        String locString = locationToString(location);
-        Optional<Hologram> oldHologram = manager.getHologram(locString);
-        oldHologram.ifPresent(Hologram::deleteHologram);
-
         Location holoLoc = location.clone();
         holoLoc.add(0, -1, 0);
         holoLoc.setYaw(0);
         holoLoc.setPitch(0);
+
+        String locString = locationToString(holoLoc);
+        Optional<Hologram> oldHologram = manager.getHologram(locString);
+        oldHologram.ifPresent(Hologram::deleteHologram);
 
         FileConfiguration config = ChickenUtils.getPlugin().getConfig();
         int range = config.isSet("hologram-visibility-range") ? config.getInt("hologram-visibility-range") : 30;
