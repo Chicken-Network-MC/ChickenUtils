@@ -1,6 +1,8 @@
 package com.chickennw.utils.models.hooks;
 
 import com.chickennw.utils.ChickenUtils;
+import com.chickennw.utils.configurations.HooksFile;
+import com.chickennw.utils.utils.ConfigUtils;
 import lombok.Getter;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -15,14 +17,16 @@ public abstract class AbstractPluginHook implements PluginHook {
     protected final boolean requirePlugin;
     protected final List<String> requiredPlugins;
     protected final FileConfiguration hooksYaml;
+    protected final HooksFile hooksFile;
 
     public AbstractPluginHook(String name, boolean requirePlugin, String requiredPlugin) {
         this.name = name;
         this.requirePlugin = requirePlugin;
         requiredPlugins = List.of(requiredPlugin);
 
-        File hooksFile = new File(ChickenUtils.getPlugin().getDataFolder(), "hooks.yml");
+        File hooksFile = new File(ChickenUtils.getPlugin().getDataFolder(), "Hooks.yml");
         hooksYaml = YamlConfiguration.loadConfiguration(hooksFile);
+        this.hooksFile = ConfigUtils.get(HooksFile.class);
     }
 
     public AbstractPluginHook(String name, boolean requirePlugin, List<String> requiredPlugins) {
@@ -30,8 +34,9 @@ public abstract class AbstractPluginHook implements PluginHook {
         this.requirePlugin = requirePlugin;
         this.requiredPlugins = requiredPlugins;
 
-        File hooksFile = new File(ChickenUtils.getPlugin().getDataFolder(), "hooks.yml");
+        File hooksFile = new File(ChickenUtils.getPlugin().getDataFolder(), "Hooks.yml");
         hooksYaml = YamlConfiguration.loadConfiguration(hooksFile);
+        this.hooksFile = ConfigUtils.get(HooksFile.class);
     }
 
     @Override

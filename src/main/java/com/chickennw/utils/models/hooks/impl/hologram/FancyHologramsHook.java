@@ -43,7 +43,7 @@ public class FancyHologramsHook extends AbstractPluginHook implements HologramHo
 
     @Override
     public boolean isEnabled() {
-        return hooksYaml.getBoolean("hologram-hooks.fancy-holograms", true);
+        return hooksFile.getHologramHooks().isFancyHolograms();
     }
 
     @Override
@@ -101,8 +101,8 @@ public class FancyHologramsHook extends AbstractPluginHook implements HologramHo
                 hologramData.setText(lines);
                 hologram.queueUpdate();
             } else {
-                remove(holoLoc);
-                create(holoLoc, lines);
+                remove(location);
+                create(location, lines);
             }
         }
     }

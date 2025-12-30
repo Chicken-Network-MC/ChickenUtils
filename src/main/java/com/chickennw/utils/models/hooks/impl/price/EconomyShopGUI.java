@@ -31,7 +31,7 @@ public class EconomyShopGUI extends AbstractPluginHook implements PriceHook {
 
     @Override
     public boolean isEnabled() {
-        return hooksYaml.getBoolean("price-hooks.economy-shop-gui", true);
+        return hooksFile.getPriceHooks().isEconomyShopGui();
     }
 
     @Override

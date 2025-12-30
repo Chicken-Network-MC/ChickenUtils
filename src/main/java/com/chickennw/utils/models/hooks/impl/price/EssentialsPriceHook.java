@@ -28,7 +28,7 @@ public class EssentialsPriceHook extends AbstractPluginHook implements PriceHook
 
     @Override
     public boolean isEnabled() {
-        return hooksYaml.getBoolean("price-hooks.essentials", true);
+        return hooksFile.getPriceHooks().isEssentials();
     }
 
     public double calculatePrice(ItemStack item) {

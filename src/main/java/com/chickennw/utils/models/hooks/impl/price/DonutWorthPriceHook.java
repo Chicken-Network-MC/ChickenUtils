@@ -25,7 +25,7 @@ public class DonutWorthPriceHook extends AbstractPluginHook implements PriceHook
 
     @Override
     public boolean isEnabled() {
-        return hooksYaml.getBoolean("price-hooks.donut-worth", true);
+        return hooksFile.getPriceHooks().isDonutWorth();
     }
 
     @Override
