@@ -15,6 +15,7 @@ import org.slf4j.Logger;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Modifier;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
@@ -66,9 +67,10 @@ public class ConfigManager {
 
     public void createFiles(String path) {
         JavaPlugin plugin = ChickenUtils.getPlugin();
-        File jarFile = new File(plugin.getClass().getProtectionDomain().getCodeSource().getLocation().getPath());
 
         try {
+            File jarFile = new File(plugin.getClass().getProtectionDomain().getCodeSource().getLocation().toURI());
+
             final JarFile jar = new JarFile(jarFile);
             final Enumeration<JarEntry> entries = jar.entries();
             while (entries.hasMoreElements()) {
@@ -82,7 +84,7 @@ public class ConfigManager {
                 }
             }
             jar.close();
-        } catch (IOException ex) {
+        } catch (IOException | URISyntaxException ex) {
             ex.printStackTrace();
         }
     }
