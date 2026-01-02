@@ -49,7 +49,6 @@ public class FancyHologramsHook extends AbstractPluginHook implements HologramHo
     @Override
     public void create(Location location, List<String> lines) {
         Location holoLoc = location.clone();
-        holoLoc.add(0, -1, 0);
         holoLoc.setYaw(0);
         holoLoc.setPitch(0);
 
@@ -77,22 +76,16 @@ public class FancyHologramsHook extends AbstractPluginHook implements HologramHo
 
     @Override
     public void remove(Location location) {
-        Location holoLoc = location.clone();
-        holoLoc.add(0, -1, 0);
-
-        manager.getHologram(locationToString(holoLoc)).ifPresent(manager::removeHologram);
+        manager.getHologram(locationToString(location)).ifPresent(manager::removeHologram);
     }
 
     @Override
     public void update(Location location, List<String> lines) {
-        Location holoLoc = location.clone();
-        holoLoc.add(0, -1, 0);
-
-        String locString = locationToString(holoLoc);
+        String locString = locationToString(location);
         Hologram hologram = manager.getHologram(locString).orElse(null);
 
         if (hologram == null) {
-            create(holoLoc, lines);
+            create(location, lines);
         } else {
             TextHologramData hologramData = (TextHologramData) hologram.getData();
             if (hologramData.getText().size() == lines.size()) {
