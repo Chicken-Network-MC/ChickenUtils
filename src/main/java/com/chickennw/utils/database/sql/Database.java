@@ -95,7 +95,6 @@ public abstract class Database {
         settings.put("hibernate.hikari.maxLifetime", "600000");
         settings.put("hibernate.hikari.connectionTimeout", "20000");
         settings.put("hibernate.hikari.leakDetectionThreshold", "60000");
-        settings.put("hibernate.hikari.autoCommit", "true");
 
         if (type.equalsIgnoreCase("mysql")) {
             String host = config.getMysql().getHost();
@@ -117,7 +116,8 @@ public abstract class Database {
                     "DB_CLOSE_ON_EXIT=FALSE;" +
                     "CACHE_SIZE=8192;" +
                     "WRITE_DELAY=1000;" +
-                    "FILE_LOCK=FS");
+                    "AUTO_RECONNECT=TRUE;" +
+                    "FILE_LOCK=NO");
         }
 
         return settings;
@@ -130,8 +130,8 @@ public abstract class Database {
     public void saveSync(Object object) {
         try (Session session = sessionFactory.openSession()) {
             Transaction tx = session.beginTransaction();
-            session.saveOrUpdate(object);
             session.evict(object);
+            session.saveOrUpdate(object);
             tx.commit();
         } catch (Exception ex) {
             throw new RuntimeException("An error appeared on saving spawners sync", ex);
