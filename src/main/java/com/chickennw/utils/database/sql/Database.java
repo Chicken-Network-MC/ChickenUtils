@@ -131,7 +131,6 @@ public abstract class Database {
         try (Session session = sessionFactory.openSession()) {
             Transaction tx = session.beginTransaction();
             session.saveOrUpdate(object);
-            session.flush();
             session.evict(object);
             tx.commit();
         } catch (Exception ex) {

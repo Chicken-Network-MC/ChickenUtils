@@ -12,10 +12,10 @@ public class DatabaseConfiguration extends OkaeriConfig {
     @Comment("You can use h2 and mysql")
     private String type = "h2";
     private int threads = 5;
-    private int saveIntervalInMinutes = 15;
+    private int saveIntervalInMinutes = 1;
     private boolean enableVirtualThreads = true;
     private String threadNamePrefix = "utils";
-    private int batchSaveSize = 500;
+    private int batchSaveSize = 50;
     private MySQL mysql = new MySQL();
 
     @Setter
