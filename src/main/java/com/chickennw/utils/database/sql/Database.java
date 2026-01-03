@@ -29,6 +29,7 @@ public abstract class Database {
     private final String BACKUP_FOLDER = "backup";
     protected final ExecutorService executor;
     protected final Logger logger;
+    protected String databaseType;
     protected SessionFactory sessionFactory;
 
     public Database(JavaPlugin plugin, DatabaseConfiguration config) {
@@ -76,7 +77,7 @@ public abstract class Database {
 
     private Properties generateProperties(JavaPlugin plugin, DatabaseConfiguration config) {
         Properties settings = new Properties();
-        String type = config.getType();
+        databaseType = config.getType();
 
         settings.put("hibernate.hbm2ddl.auto", "update");
         settings.put("hibernate.show_sql", "false");
@@ -96,7 +97,7 @@ public abstract class Database {
         settings.put("hibernate.hikari.connectionTimeout", "20000");
         settings.put("hibernate.hikari.leakDetectionThreshold", "60000");
 
-        if (type.equalsIgnoreCase("mysql")) {
+        if (databaseType.equalsIgnoreCase("mysql")) {
             String host = config.getMysql().getHost();
             String port = config.getMysql().getPort();
             String database = config.getMysql().getDatabase();
@@ -152,6 +153,8 @@ public abstract class Database {
     }
 
     public void backup() {
+        if (!databaseType.equalsIgnoreCase("h2")) return;
+
         try (Session session = sessionFactory.openSession()) {
             session.beginTransaction();
 
