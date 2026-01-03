@@ -34,7 +34,7 @@ public abstract class NPC {
 
     protected final UUID uuid = UUID.randomUUID();
     protected final int entityId = SpigotReflectionUtil.generateEntityId();
-    protected ConcurrentHashMap<UUID, UUID> seeingPlayers; // player - player
+    protected final ConcurrentHashMap<UUID, UUID> seeingPlayers = new ConcurrentHashMap<>(); // player - player
 
     protected boolean visible = true;
     protected List<Equipment> equipments;

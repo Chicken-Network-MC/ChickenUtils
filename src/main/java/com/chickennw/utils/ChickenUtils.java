@@ -19,6 +19,9 @@ public class ChickenUtils {
     @Getter
     private static BukkitAudiences bukkitAudience;
 
+    @Getter
+    private static PacketListeners packetListeners;
+
     public static void setPlugin(JavaPlugin plugin) {
         ChickenUtils.plugin = plugin;
         foliaLib = new FoliaLib(plugin);
@@ -26,10 +29,20 @@ public class ChickenUtils {
 
         Logger logger = LoggerFactory.getLogger();
         if (plugin.getServer().getPluginManager().isPluginEnabled("PacketEvents")) {
-            new PacketListeners();
+            packetListeners = new PacketListeners();
             logger.info("PacketEvents detected and hooked.");
         } else {
             logger.info("PacketEvents not detected, skipping hook.");
+        }
+    }
+
+    public static void disable() {
+        if (bukkitAudience != null) {
+            bukkitAudience.close();
+        }
+
+        if (plugin.getServer().getPluginManager().isPluginEnabled("PacketEvents")) {
+            packetListeners.disable();
         }
     }
 }
