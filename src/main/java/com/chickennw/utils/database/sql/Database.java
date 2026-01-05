@@ -22,6 +22,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.TimeUnit;
 
 @Getter
 public abstract class Database {
@@ -114,9 +115,6 @@ public abstract class Database {
             String path = plugin.getDataFolder().getAbsolutePath();
             settings.put("hibernate.connection.driver_class", "org.h2.Driver");
             settings.put("hibernate.connection.url", "jdbc:h2:" + path + "/database;" +
-                    "DB_CLOSE_ON_EXIT=FALSE;" +
-                    "CACHE_SIZE=8192;" +
-                    "WRITE_DELAY=1000;" +
                     "AUTO_RECONNECT=TRUE;" +
                     "FILE_LOCK=NO");
         }
@@ -131,7 +129,6 @@ public abstract class Database {
     public void saveSync(Object object) {
         try (Session session = sessionFactory.openSession()) {
             Transaction tx = session.beginTransaction();
-            session.evict(object);
             session.saveOrUpdate(object);
             tx.commit();
         } catch (Exception ex) {
@@ -177,12 +174,18 @@ public abstract class Database {
     }
 
     public void close() {
-        executor.shutdown();
-        if (sessionFactory != null && !sessionFactory.isClosed()) {
-            sessionFactory.close();
-        }
+        try {
+            executor.shutdown();
+            executor.awaitTermination(10, TimeUnit.SECONDS);
 
-        logger.info("Database closed successfully.");
+            if (sessionFactory != null && !sessionFactory.isClosed()) {
+                sessionFactory.close();
+            }
+
+            logger.info("Database closed successfully.");
+        } catch (Exception e) {
+            logger.error(e.getMessage(), e);
+        }
     }
 
     private void deleteOldBackups() {
