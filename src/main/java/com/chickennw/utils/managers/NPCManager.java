@@ -40,6 +40,7 @@ public class NPCManager {
                 .uncaughtExceptionHandler((thread, throwable) -> logger.error(throwable.getMessage(), throwable))
                 .factory();
         executor = Executors.newSingleThreadExecutor(factory);
+        startTicking();
     }
 
     public void registerNPC(NPC npc) {
@@ -52,5 +53,13 @@ public class NPCManager {
 
         if (npc == null) return;
         npc.despawn();
+    }
+
+    private void startTicking() {
+        long tickInterval = 20L;
+
+        plugin.getServer().getScheduler().runTaskTimerAsynchronously(plugin, () -> {
+            npcs.values().forEach(npc -> executor.submit(npc.getUpdateTask()));
+        }, tickInterval, tickInterval);
     }
 }

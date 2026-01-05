@@ -11,7 +11,6 @@ import com.github.retrooper.packetevents.protocol.player.Equipment;
 import com.github.retrooper.packetevents.wrapper.PacketWrapper;
 import com.github.retrooper.packetevents.wrapper.play.server.*;
 import com.tcoded.folialib.FoliaLib;
-import com.tcoded.folialib.wrapper.task.WrappedTask;
 import io.github.retrooper.packetevents.util.SpigotConversionUtil;
 import io.github.retrooper.packetevents.util.SpigotReflectionUtil;
 import lombok.Getter;
@@ -49,7 +48,6 @@ public abstract class NPC {
     protected Consumer<Player> onClickAction;
     protected boolean despawned;
 
-    protected WrappedTask updateTask;
     protected Location location;
 
     public NPC(String name, String worldName, double x, double y, double z, EntityType entityType, Consumer<Player> onClickAction) {
@@ -67,20 +65,14 @@ public abstract class NPC {
         despawned = !isChunkLoaded();
     }
 
-    public void startUpdateTask() {
-        if (updateTask != null) updateTask.cancel();
-
-        FoliaLib foliaLib = ChickenUtils.getFoliaLib();
-        updateTask = foliaLib.getScheduler().runTimerAsync(() -> {
-            if (despawned) return;
-            if (location == null) getLocation();
-
+    public Runnable getUpdateTask() {
+        return  () -> {
+            //if (despawned) return;
             if (!location.isWorldLoaded()) return;
             if (!isChunkLoaded()) return;
+            if (location == null) getLocation();
 
             World world = location.getWorld();
-            if (world == null) return;
-
             seeingPlayers.values().forEach(playerUUID -> {
                 Player player = Bukkit.getPlayer(playerUUID);
                 if (player == null) {
@@ -103,7 +95,7 @@ public abstract class NPC {
                 if (!seeingPlayers.contains(player.getUniqueId())) spawn(player);
                 seeingPlayers.put(player.getUniqueId(), player.getUniqueId());
             }
-        }, 0, 10);
+        };
     }
 
     public void execute(Player player) {
