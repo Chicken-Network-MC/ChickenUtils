@@ -16,6 +16,7 @@ import org.reflections.Reflections;
 import org.slf4j.Logger;
 
 import java.io.File;
+import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
@@ -127,11 +128,34 @@ public abstract class Database {
     }
 
     public void saveSync(Object object) {
-        try (Session session = sessionFactory.openSession()) {
-            Transaction tx = session.beginTransaction();
+        Session session = sessionFactory.openSession();
+        Transaction tx = session.beginTransaction();
+
+        try (session) {
             session.saveOrUpdate(object);
             tx.commit();
         } catch (Exception ex) {
+            tx.rollback();
+            throw new RuntimeException("An error appeared on saving spawners sync", ex);
+        }
+    }
+
+    public CompletableFuture<Void> save(List<Object> objects) {
+        return CompletableFuture.runAsync(() -> saveSync(objects), executor);
+    }
+
+    public void saveSync(List<Object> objects) {
+        Session session = sessionFactory.openSession();
+        Transaction tx = session.beginTransaction();
+
+        try (session) {
+            for (Object object : objects) {
+                session.saveOrUpdate(object);
+            }
+
+            tx.commit();
+        } catch (Exception ex) {
+            tx.rollback();
             throw new RuntimeException("An error appeared on saving spawners sync", ex);
         }
     }
@@ -141,11 +165,15 @@ public abstract class Database {
     }
 
     public void deleteSync(Object object) {
-        try (Session session = sessionFactory.openSession()) {
-            Transaction tx = session.beginTransaction();
+        Session session = sessionFactory.openSession();
+        Transaction tx = session.beginTransaction();
 
+        try (session) {
             session.remove(object);
             tx.commit();
+        } catch (Exception ex) {
+            tx.rollback();
+            throw new RuntimeException("An error appeared on deleting spawners sync", ex);
         }
     }
 
