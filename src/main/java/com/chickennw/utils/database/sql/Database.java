@@ -131,12 +131,14 @@ public abstract class Database {
         Session session = sessionFactory.openSession();
         Transaction tx = session.beginTransaction();
 
-        try (session) {
+        try {
             session.saveOrUpdate(object);
             tx.commit();
         } catch (Exception ex) {
             tx.rollback();
             throw new RuntimeException("An error appeared on saving spawners sync", ex);
+        } finally {
+            session.close();
         }
     }
 
@@ -148,7 +150,7 @@ public abstract class Database {
         Session session = sessionFactory.openSession();
         Transaction tx = session.beginTransaction();
 
-        try (session) {
+        try {
             for (Object object : objects) {
                 session.saveOrUpdate(object);
             }
@@ -157,6 +159,8 @@ public abstract class Database {
         } catch (Exception ex) {
             tx.rollback();
             throw new RuntimeException("An error appeared on saving spawners sync", ex);
+        } finally {
+            session.close();
         }
     }
 
@@ -168,12 +172,14 @@ public abstract class Database {
         Session session = sessionFactory.openSession();
         Transaction tx = session.beginTransaction();
 
-        try (session) {
+        try {
             session.remove(object);
             tx.commit();
         } catch (Exception ex) {
             tx.rollback();
             throw new RuntimeException("An error appeared on deleting spawners sync", ex);
+        } finally {
+            session.close();
         }
     }
 
@@ -204,15 +210,24 @@ public abstract class Database {
     public void close() {
         try {
             executor.shutdown();
-            executor.awaitTermination(10, TimeUnit.SECONDS);
+            if (!executor.awaitTermination(30, TimeUnit.SECONDS)) {
+                logger.warn("Executor did not terminate in time, forcing shutdown...");
+                List<Runnable> droppedTasks = executor.shutdownNow();
+                logger.warn("Dropped {} tasks", droppedTasks.size());
+
+                if (!executor.awaitTermination(10, TimeUnit.SECONDS)) {
+                    logger.error("Executor did not terminate");
+                }
+            }
 
             if (sessionFactory != null && !sessionFactory.isClosed()) {
                 sessionFactory.close();
+                logger.info("SessionFactory closed");
             }
 
-            logger.info("Database closed successfully.");
+            logger.info("Database closed successfully");
         } catch (Exception e) {
-            logger.error(e.getMessage(), e);
+            logger.error("Error during database shutdown", e);
         }
     }
 
