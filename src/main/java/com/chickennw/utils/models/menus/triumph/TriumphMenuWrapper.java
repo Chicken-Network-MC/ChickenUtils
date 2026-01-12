@@ -22,7 +22,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.inventory.ItemStack;
-import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 
 import java.util.ArrayList;
@@ -53,11 +52,11 @@ public abstract class TriumphMenuWrapper {
 
     public abstract HashMap<String, GuiAction<InventoryClickEvent>> premadeGuiActions();
 
-    public abstract GuiAction<@NotNull InventoryClickEvent> getDefaultClickAction();
+    public abstract GuiAction<InventoryClickEvent> getDefaultClickAction();
 
-    public abstract GuiAction<@NotNull InventoryClickEvent> getDefaultTopClickAction();
+    public abstract GuiAction<InventoryClickEvent> getDefaultTopClickAction();
 
-    public abstract GuiAction<@NotNull InventoryCloseEvent> getCloseGuiAction();
+    public abstract GuiAction<InventoryCloseEvent> getCloseGuiAction();
 
     public void openAsync(Player player) {
         ChickenUtils.getFoliaLib().getScheduler().runAsync((task) -> {
@@ -168,9 +167,9 @@ public abstract class TriumphMenuWrapper {
         GuiAction<InventoryClickEvent> func = premadeGuiActions().get(action);
         ItemStack itemStack = guiItem.getItemStack();
         itemStack = NbtUtils.setKey(itemStack, MENU_ACTION_NBT_KEY, action);
+        guiItem.setItemStack(itemStack);
 
         if (func != null) {
-            guiItem.setItemStack(itemStack);
             guiItem.setAction(func);
         }
     }
