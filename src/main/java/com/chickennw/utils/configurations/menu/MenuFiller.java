@@ -1,4 +1,4 @@
-package com.chickennw.utils.models.menus.triumph;
+package com.chickennw.utils.configurations.menu;
 
 import eu.okaeri.configs.OkaeriConfig;
 import eu.okaeri.configs.annotation.NameModifier;
@@ -19,9 +19,6 @@ import java.util.List;
 public class MenuFiller extends OkaeriConfig {
 
     private boolean enabled = true;
-    private String material = "GRAY_STAINED_GLASS_PANE";
-    private int customModelData = 0;
-    private String name ="<gray>";
-    private List<String> lore = List.of();
+    private MenuItemStack fillerItem = new MenuItemStack(" ", "BLACK_STAINED_GLASS_PANE", -1, List.of());
 }
 
