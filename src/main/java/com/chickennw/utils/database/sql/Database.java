@@ -19,11 +19,7 @@ import java.io.File;
 import java.util.List;
 import java.util.Properties;
 import java.util.Set;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ThreadFactory;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 
 @Getter
 public abstract class Database {
@@ -83,8 +79,8 @@ public abstract class Database {
 
         settings.put("hibernate.hbm2ddl.auto", "update");
         settings.put("hibernate.show_sql", "false");
-        settings.put("log4j.logger.org.hibernate", "DEBUG");
-        settings.put("log4j.logger.org.hibernate.SQL", "DEBUG");
+        settings.put("log4j.logger.org.hibernate", "INFO");
+        settings.put("log4j.logger.org.hibernate.SQL", "INFO");
         settings.put("hibernate.connection.provider_class", "org.hibernate.hikaricp.internal.HikariCPConnectionProvider");
 
         String minIdle = config.getMysql().getMinIdle();
@@ -95,9 +91,9 @@ public abstract class Database {
         settings.put("hibernate.hikari.maximumPoolSize", maxPool);
         settings.put("hibernate.hikari.idleTimeout", idleTimeout);
         settings.put("hibernate.hikari.poolName", plugin.getClass().getSimpleName() + "DatabasePool");
-        settings.put("hibernate.hikari.maxLifetime", "600000");
-        settings.put("hibernate.hikari.connectionTimeout", "20000");
-        settings.put("hibernate.hikari.leakDetectionThreshold", "60000");
+        //settings.put("hibernate.hikari.maxLifetime", "600000");
+        //settings.put("hibernate.hikari.connectionTimeout", "20000");
+        //settings.put("hibernate.hikari.leakDetectionThreshold", "60000");
 
         if (databaseType.equalsIgnoreCase("mysql")) {
             String host = config.getMysql().getHost();
@@ -142,11 +138,11 @@ public abstract class Database {
         }
     }
 
-    public CompletableFuture<Void> save(List<Object> objects) {
-        return CompletableFuture.runAsync(() -> saveSync(objects), executor);
+    public CompletableFuture<Void> saveList(List<?> objects) {
+        return CompletableFuture.runAsync(() -> saveSyncList(objects), executor);
     }
 
-    public void saveSync(List<Object> objects) {
+    public void saveSyncList(List<?> objects) {
         Session session = sessionFactory.openSession();
         Transaction tx = session.beginTransaction();
 
