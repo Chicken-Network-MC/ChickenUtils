@@ -205,15 +205,19 @@ public abstract class Database {
 
     public void close() {
         try {
-            executor.shutdown();
-            if (!executor.awaitTermination(30, TimeUnit.SECONDS)) {
-                logger.warn("Executor did not terminate in time, forcing shutdown...");
-                List<Runnable> droppedTasks = executor.shutdownNow();
-                logger.warn("Dropped {} tasks", droppedTasks.size());
+            try {
+                executor.shutdown();
+                if (!executor.awaitTermination(30, TimeUnit.SECONDS)) {
+                    logger.warn("Executor did not terminate in time, forcing shutdown...");
+                    List<Runnable> droppedTasks = executor.shutdownNow();
+                    logger.warn("Dropped {} tasks", droppedTasks.size());
 
-                if (!executor.awaitTermination(10, TimeUnit.SECONDS)) {
-                    logger.error("Executor did not terminate");
+                    if (!executor.awaitTermination(10, TimeUnit.SECONDS)) {
+                        logger.error("Executor did not terminate");
+                    }
                 }
+            } catch (InterruptedException e) {
+                logger.error("Interrupted during executor shutdown", e);
             }
 
             if (sessionFactory != null && !sessionFactory.isClosed()) {
