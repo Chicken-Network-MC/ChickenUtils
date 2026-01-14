@@ -113,7 +113,9 @@ public abstract class Database {
             settings.put("hibernate.connection.driver_class", "org.h2.Driver");
             settings.put("hibernate.connection.url", "jdbc:h2:" + path + "/database;" +
                     "AUTO_RECONNECT=TRUE;" +
-                    "FILE_LOCK=NO");
+                    "FILE_LOCK=FILE;" +
+                    "DB_CLOSE_ON_EXIT=TRUE;" +
+                    "TRACE_LEVEL_FILE=0");
         }
 
         return settings;
