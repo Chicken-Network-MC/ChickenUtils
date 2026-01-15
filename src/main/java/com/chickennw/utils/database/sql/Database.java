@@ -205,9 +205,20 @@ public abstract class Database {
         }
     }
 
+    public void testQuery() {
+        try (Session session = sessionFactory.openSession()) {
+            session.createNativeQuery("SELECT 1").getSingleResult();
+            logger.info("Database connection test successful.");
+        } catch (Exception e) {
+            logger.error("Database connection test failed.", e);
+        }
+    }
+
     public void close() {
         try {
             try {
+                testQuery();
+
                 executor.shutdown();
                 if (!executor.awaitTermination(30, TimeUnit.SECONDS)) {
                     logger.warn("Executor did not terminate in time, forcing shutdown...");
