@@ -91,6 +91,7 @@ public abstract class Database {
         settings.put("hibernate.hikari.maximumPoolSize", maxPool);
         settings.put("hibernate.hikari.idleTimeout", idleTimeout);
         settings.put("hibernate.hikari.poolName", plugin.getClass().getSimpleName() + "DatabasePool");
+        settings.put("hibernate.transaction.jta.platform", "org.hibernate.engine.transaction.jta.platform.internal.NoJtaPlatform");
         //settings.put("hibernate.hikari.maxLifetime", "600000");
         //settings.put("hibernate.hikari.connectionTimeout", "20000");
         //settings.put("hibernate.hikari.leakDetectionThreshold", "60000");
@@ -112,10 +113,11 @@ public abstract class Database {
             String path = plugin.getDataFolder().getAbsolutePath();
             settings.put("hibernate.connection.driver_class", "org.h2.Driver");
             settings.put("hibernate.connection.url", "jdbc:h2:" + path + "/database;" +
-                    "AUTO_RECONNECT=TRUE;" +
                     "FILE_LOCK=FILE;" +
-                    "DB_CLOSE_ON_EXIT=TRUE;" +
-                    "TRACE_LEVEL_FILE=0");
+                    "DB_CLOSE_ON_EXIT=FALSE;" +
+                    "TRACE_LEVEL_FILE=0;" +
+                    "WRITE_DELAY=100;" +
+                    "LOCK_TIMEOUT=10000");
         }
 
         return settings;
@@ -181,7 +183,39 @@ public abstract class Database {
         }
     }
 
-    public void backup() {
+    public void testQuery() {
+        try (Session session = sessionFactory.openSession()) {
+            session.createNativeQuery("SELECT 1").getSingleResult();
+            logger.info("Database connection test successful.");
+        } catch (Exception e) {
+            logger.error("Database connection test failed.", e);
+        }
+    }
+
+    public void close() {
+        try {
+            executor.shutdown();
+            if (!executor.awaitTermination(60, TimeUnit.SECONDS)) {  // 60 saniyeye çıkar
+                logger.warn("Executor did not terminate in time, forcing shutdown...");
+                List<Runnable> droppedTasks = executor.shutdownNow();
+                logger.warn("Dropped {} tasks", droppedTasks.size());
+            }
+
+            testQuery();
+            backup();
+
+            if (sessionFactory != null && !sessionFactory.isClosed()) {
+                sessionFactory.close();
+                logger.info("SessionFactory closed");
+            }
+
+            logger.info("Database closed successfully");
+        } catch (Exception e) {
+            logger.error("Error during database shutdown", e);
+        }
+    }
+
+    private void backup() {
         if (!databaseType.equalsIgnoreCase("h2")) return;
 
         try (Session session = sessionFactory.openSession()) {
@@ -202,45 +236,6 @@ public abstract class Database {
             logger.info("Backup success.");
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
-        }
-    }
-
-    public void testQuery() {
-        try (Session session = sessionFactory.openSession()) {
-            session.createNativeQuery("SELECT 1").getSingleResult();
-            logger.info("Database connection test successful.");
-        } catch (Exception e) {
-            logger.error("Database connection test failed.", e);
-        }
-    }
-
-    public void close() {
-        try {
-            try {
-                testQuery();
-
-                executor.shutdown();
-                if (!executor.awaitTermination(30, TimeUnit.SECONDS)) {
-                    logger.warn("Executor did not terminate in time, forcing shutdown...");
-                    List<Runnable> droppedTasks = executor.shutdownNow();
-                    logger.warn("Dropped {} tasks", droppedTasks.size());
-
-                    if (!executor.awaitTermination(10, TimeUnit.SECONDS)) {
-                        logger.error("Executor did not terminate");
-                    }
-                }
-            } catch (InterruptedException e) {
-                logger.error("Interrupted during executor shutdown", e);
-            }
-
-            if (sessionFactory != null && !sessionFactory.isClosed()) {
-                sessionFactory.close();
-                logger.info("SessionFactory closed");
-            }
-
-            logger.info("Database closed successfully");
-        } catch (Exception e) {
-            logger.error("Error during database shutdown", e);
         }
     }
 
