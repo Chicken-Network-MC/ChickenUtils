@@ -1,6 +1,7 @@
 package com.chickennw.utils.models.hooks.impl.hologram;
 
 import com.chickennw.utils.ChickenUtils;
+import com.chickennw.utils.managers.CommandManager;
 import com.chickennw.utils.models.hooks.AbstractPluginHook;
 import com.chickennw.utils.models.hooks.types.HologramHook;
 import de.oliver.fancyholograms.api.FancyHologramsPlugin;
@@ -56,7 +57,7 @@ public class FancyHologramsHook extends AbstractPluginHook implements HologramHo
         Optional<Hologram> oldHologram = manager.getHologram(locString);
         oldHologram.ifPresent(Hologram::deleteHologram);
 
-        FileConfiguration config = ChickenUtils.getPlugin().getConfig();
+        FileConfiguration config = CommandManager.getInstance().getConfig();
         int range = config.isSet("hologram-visibility-range") ? config.getInt("hologram-visibility-range") : 30;
 
         TextHologramData hologramData = new TextHologramData(locString, holoLoc);

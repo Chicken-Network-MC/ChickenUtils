@@ -11,6 +11,7 @@ import dev.triumphteam.cmd.core.exceptions.CommandRegistrationException;
 import dev.triumphteam.cmd.core.message.MessageKey;
 import dev.triumphteam.cmd.core.suggestion.SuggestionKey;
 import dev.triumphteam.cmd.core.suggestion.SuggestionResolver;
+import lombok.Getter;
 import org.bukkit.Bukkit;
 import org.bukkit.Server;
 import org.bukkit.command.CommandMap;
@@ -30,6 +31,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+@Getter
 public class CommandManager {
 
     private static CommandManager instance;
@@ -37,6 +39,7 @@ public class CommandManager {
     private final Logger logger;
     private final BukkitCommandManager<CommandSender> manager;
     private final JavaPlugin plugin;
+    private final FileConfiguration config;
     private final FileConfiguration lang;
 
     public static CommandManager getInstance() {
@@ -53,6 +56,8 @@ public class CommandManager {
 
         manager = BukkitCommandManager.create(plugin);
 
+        File configFile = new File(plugin.getDataFolder(), "Config.yml");
+        config = YamlConfiguration.loadConfiguration(configFile);
         File langFile = new File(plugin.getDataFolder(), "Lang.yml");
         lang = YamlConfiguration.loadConfiguration(langFile);
 
@@ -117,7 +122,6 @@ public class CommandManager {
     }
 
     private void registerMessages() {
-        FileConfiguration config = plugin.getConfig();
         String prefix = config.getString("prefix");
 
         manager.registerMessage(MessageKey.NOT_ENOUGH_ARGUMENTS, (sender, context) -> {

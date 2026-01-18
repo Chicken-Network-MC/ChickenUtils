@@ -39,7 +39,9 @@ public class MenuManager {
 
     public ItemStack parseMenuItem(OfflinePlayer offlinePlayer, String material, String name, List<String> lore,
                                    int customModelData, Function<String, String> placeholderParser) {
-        ItemStack itemStack = ItemUtils.parseItemStack(material).join();
+        ItemStack itemStack = offlinePlayer != null ?
+                ItemUtils.parseItemStack(material, offlinePlayer.getUniqueId()).join() :
+                ItemUtils.parseItemStack(material).join();
         ItemMeta itemMeta = itemStack.getItemMeta();
 
         if (placeholderParser != null) name = placeholderParser.apply(name);

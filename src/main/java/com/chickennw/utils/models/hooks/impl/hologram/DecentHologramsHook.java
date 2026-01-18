@@ -1,6 +1,6 @@
 package com.chickennw.utils.models.hooks.impl.hologram;
 
-import com.chickennw.utils.ChickenUtils;
+import com.chickennw.utils.managers.CommandManager;
 import com.chickennw.utils.models.hooks.AbstractPluginHook;
 import com.chickennw.utils.models.hooks.types.HologramHook;
 import eu.decentsoftware.holograms.api.DHAPI;
@@ -44,7 +44,7 @@ public class DecentHologramsHook extends AbstractPluginHook implements HologramH
         lines = parseColors(lines);
         Hologram hologram = DHAPI.createHologram(locString, location, lines);
 
-        FileConfiguration config = ChickenUtils.getPlugin().getConfig();
+        FileConfiguration config = CommandManager.getInstance().getConfig();
         int range = config.isSet("hologram-visibility-range") ? config.getInt("hologram-visibility-range") : 30;
         hologram.setDisplayRange(range);
         hologram.setUpdateRange(range);

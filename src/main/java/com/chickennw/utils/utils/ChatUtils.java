@@ -1,6 +1,7 @@
 package com.chickennw.utils.utils;
 
 import com.chickennw.utils.ChickenUtils;
+import com.chickennw.utils.managers.CommandManager;
 import lombok.extern.slf4j.Slf4j;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.TextDecoration;
@@ -52,7 +53,7 @@ public class ChatUtils {
     }
 
     public static void sendPrefixedMessage(CommandSender sender, String message) {
-        FileConfiguration config = ChickenUtils.getPlugin().getConfig();
+        FileConfiguration config = CommandManager.getInstance().getConfig();
         String prefix = config.getString("prefix");
         if (sender instanceof Player player) {
             ChickenUtils.getBukkitAudience().player(player).sendMessage(ChatUtils.colorize(prefix + message));
