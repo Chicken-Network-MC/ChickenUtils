@@ -116,8 +116,10 @@ public abstract class Database {
                     "FILE_LOCK=FILE;" +
                     "DB_CLOSE_ON_EXIT=FALSE;" +
                     "TRACE_LEVEL_FILE=0;" +
-                    "WRITE_DELAY=100;" +
-                    "LOCK_TIMEOUT=10000");
+                    "WRITE_DELAY=0;" +
+                    "LOCK_TIMEOUT=10000;" +
+                    "DEFRAG_ALWAYS=TRUE;" +
+                    "MAX_COMPACT_TIME=2000");
         }
 
         return settings;
@@ -195,16 +197,16 @@ public abstract class Database {
     public void close() {
         try {
             executor.shutdown();
-            if (!executor.awaitTermination(60, TimeUnit.SECONDS)) {  // 60 saniyeye çıkar
+            if (!executor.awaitTermination(60, TimeUnit.SECONDS)) {
                 logger.warn("Executor did not terminate in time, forcing shutdown...");
                 List<Runnable> droppedTasks = executor.shutdownNow();
                 logger.warn("Dropped {} tasks", droppedTasks.size());
             }
 
-            testQuery();
-            backup();
-
             if (sessionFactory != null && !sessionFactory.isClosed()) {
+                backup();
+                checkpointH2();
+
                 sessionFactory.close();
                 logger.info("SessionFactory closed");
             }
@@ -212,6 +214,17 @@ public abstract class Database {
             logger.info("Database closed successfully");
         } catch (Exception e) {
             logger.error("Error during database shutdown", e);
+        }
+    }
+
+    private void checkpointH2() {
+        if (!databaseType.equalsIgnoreCase("h2")) return;
+
+        try (Session session = sessionFactory.openSession()) {
+            session.createNativeQuery("CHECKPOINT SYNC").executeUpdate();
+            logger.info("H2 checkpoint completed");
+        } catch (Exception e) {
+            logger.error("Error during H2 checkpoint", e);
         }
     }
 
