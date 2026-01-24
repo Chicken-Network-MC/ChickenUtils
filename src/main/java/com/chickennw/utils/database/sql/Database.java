@@ -16,6 +16,7 @@ import org.reflections.Reflections;
 import org.slf4j.Logger;
 
 import java.io.File;
+import java.sql.Statement;
 import java.util.List;
 import java.util.Properties;
 import java.util.Set;
@@ -25,6 +26,7 @@ import java.util.concurrent.*;
 public abstract class Database {
 
     private final String BACKUP_FOLDER = "backup";
+    protected boolean isShuttingDown = false;
     protected final ExecutorService executor;
     protected final Logger logger;
     protected String databaseType;
@@ -113,13 +115,8 @@ public abstract class Database {
             String path = plugin.getDataFolder().getAbsolutePath();
             settings.put("hibernate.connection.driver_class", "org.h2.Driver");
             settings.put("hibernate.connection.url", "jdbc:h2:" + path + "/database;" +
-                    "FILE_LOCK=FILE;" +
-                    "DB_CLOSE_ON_EXIT=FALSE;" +
-                    "TRACE_LEVEL_FILE=0;" +
-                    "WRITE_DELAY=0;" +
-                    "LOCK_TIMEOUT=10000;" +
-                    "DEFRAG_ALWAYS=TRUE;" +
-                    "MAX_COMPACT_TIME=2000");
+                    "AUTO_RECONNECT=TRUE;" +
+                    "FILE_LOCK=NO");
         }
 
         return settings;
@@ -195,6 +192,13 @@ public abstract class Database {
     }
 
     public void close() {
+        if (isShuttingDown) {
+            logger.info("Database is already shutting down.");
+            return;
+        }
+
+        isShuttingDown = true;
+
         try {
             executor.shutdown();
             if (!executor.awaitTermination(60, TimeUnit.SECONDS)) {
@@ -204,8 +208,8 @@ public abstract class Database {
             }
 
             if (sessionFactory != null && !sessionFactory.isClosed()) {
-                backup();
-                checkpointH2();
+                testQuery();
+                shutdownH2Gracefully();
 
                 sessionFactory.close();
                 logger.info("SessionFactory closed");
@@ -217,38 +221,32 @@ public abstract class Database {
         }
     }
 
-    private void checkpointH2() {
+    private void shutdownH2Gracefully() {
         if (!databaseType.equalsIgnoreCase("h2")) return;
 
         try (Session session = sessionFactory.openSession()) {
-            session.createNativeQuery("CHECKPOINT SYNC").executeUpdate();
-            logger.info("H2 checkpoint completed");
+            session.doWork(connection -> {
+                try (Statement stmt = connection.createStatement()) {
+                    stmt.execute("CHECKPOINT SYNC");
+                    logger.info("Checkpoint completed");
+
+                    File dataFolder = ChickenUtils.getPlugin().getDataFolder();
+                    File backupDir = new File(dataFolder, BACKUP_FOLDER);
+                    if (!backupDir.exists()) {
+                        backupDir.mkdirs();
+                    }
+                    String fileName = "backup_" + System.currentTimeMillis() + ".zip";
+                    String backupPath = new File(backupDir, fileName).getAbsolutePath();
+                    stmt.execute("BACKUP TO '" + backupPath + "'");
+                    logger.info("Backup completed");
+                }
+            });
         } catch (Exception e) {
-            logger.error("Error during H2 checkpoint", e);
-        }
-    }
-
-    private void backup() {
-        if (!databaseType.equalsIgnoreCase("h2")) return;
-
-        try (Session session = sessionFactory.openSession()) {
-            session.beginTransaction();
-
-            File dataFolder = ChickenUtils.getPlugin().getDataFolder();
-            File backupDir = new File(dataFolder, BACKUP_FOLDER);
-            if (!backupDir.exists()) {
-                backupDir.mkdirs();
+            if (e.getMessage() != null && e.getMessage().contains("Database is already closed")) {
+                logger.info("H2 shutdown compact completed with database already closed.");
+            } else {
+                logger.warn("Error during H2 shutdown: {}", e.getMessage());
             }
-
-            String fileName = "backup_" + System.currentTimeMillis() + ".zip";
-            String backupPath = new File(backupDir, fileName).getAbsolutePath();
-
-            String sql = "BACKUP TO '" + backupPath + "'";
-            session.createNativeQuery(sql).executeUpdate();
-            session.getTransaction().commit();
-            logger.info("Backup success.");
-        } catch (Exception e) {
-            logger.error(e.getMessage(), e);
         }
     }
 
