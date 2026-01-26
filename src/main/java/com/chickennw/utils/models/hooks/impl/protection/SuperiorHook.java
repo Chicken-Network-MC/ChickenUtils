@@ -113,9 +113,9 @@ public class SuperiorHook extends AbstractPluginHook implements ProtectionHook, 
     }
 
     @Override
-    public boolean isInside(Location loc) {
-        Island island = SuperiorSkyblockAPI.getIslandAt(loc);
-        return island.isInside(loc);
+    public boolean isInside(Location islandLocation, Location targetLocation) {
+        Island island = SuperiorSkyblockAPI.getIslandAt(islandLocation);
+        return island.isInside(targetLocation);
     }
 
     @EventHandler

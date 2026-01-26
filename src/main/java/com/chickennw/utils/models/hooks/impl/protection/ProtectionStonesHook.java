@@ -80,8 +80,10 @@ public class ProtectionStonesHook extends AbstractPluginHook implements Protecti
     }
 
     @Override
-    public boolean isInside(Location loc) {
-        return PSRegion.fromLocation(loc) != null;
+    public boolean isInside(Location islandLocation, Location targetLocation) {
+        PSRegion region = PSRegion.fromLocation(islandLocation);
+        PSRegion targetRegion = PSRegion.fromLocation(targetLocation);
+        return region != null && region.equals(targetRegion);
     }
 
     @Override

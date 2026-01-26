@@ -29,5 +29,5 @@ public interface ProtectionHook extends PluginHook {
 
     Location getCenter(Location loc);
 
-    boolean isInside(Location loc);
+    boolean isInside(Location islandLocation, Location targetLocation);
 }

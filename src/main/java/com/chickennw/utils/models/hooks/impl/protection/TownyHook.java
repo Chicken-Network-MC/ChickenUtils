@@ -8,7 +8,10 @@ import com.chickennw.utils.models.hooks.types.ProtectionHook;
 import com.palmergames.bukkit.towny.TownyAPI;
 import com.palmergames.bukkit.towny.event.town.TownKickEvent;
 import com.palmergames.bukkit.towny.event.town.TownRuinedEvent;
-import com.palmergames.bukkit.towny.object.*;
+import com.palmergames.bukkit.towny.object.Resident;
+import com.palmergames.bukkit.towny.object.Town;
+import com.palmergames.bukkit.towny.object.TownBlock;
+import com.palmergames.bukkit.towny.object.WorldCoord;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
@@ -104,9 +107,10 @@ public class TownyHook extends AbstractPluginHook implements ProtectionHook, Lis
     }
 
     @Override
-    public boolean isInside(Location loc) {
-        Town town = TownyAPI.getInstance().getTown(loc);
-        return town != null;
+    public boolean isInside(Location islandLocation, Location targetLocation) {
+        Town town = TownyAPI.getInstance().getTown(targetLocation);
+        Town islandTown = TownyAPI.getInstance().getTown(islandLocation);
+        return town != null && islandTown != null && town.getUUID().equals(islandTown.getUUID());
     }
 
     @EventHandler

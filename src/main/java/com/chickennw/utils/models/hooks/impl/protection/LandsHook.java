@@ -102,9 +102,9 @@ public class LandsHook extends AbstractPluginHook implements ProtectionHook, Lis
     }
 
     @Override
-    public boolean isInside(Location loc) {
-        Land land = getLandAt(loc);
-        return land != null && land.getArea(loc) != null;
+    public boolean isInside(Location islandLocation, Location targetLocation) {
+        Land land = getLandAt(islandLocation);
+        return land != null && land.getArea(targetLocation) != null;
     }
 
     @EventHandler

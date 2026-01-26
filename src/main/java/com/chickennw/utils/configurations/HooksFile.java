@@ -16,6 +16,10 @@ public class HooksFile extends OkaeriConfig {
 
     private ConfigHologramHook hologramHooks = new ConfigHologramHook();
 
+    private ConfigEntityCountHook entityCountHooks = new ConfigEntityCountHook();
+
+    private ConfigEntityLootHook entityLootHooks = new ConfigEntityLootHook();
+
     @Getter
     @Setter
     public static class ConfigPriceHook extends OkaeriConfig {
@@ -40,5 +44,17 @@ public class HooksFile extends OkaeriConfig {
         private boolean decentHolograms = true;
 
         private boolean fancyHolograms = true;
+    }
+
+    @Getter
+    @Setter
+    public static class ConfigEntityCountHook extends OkaeriConfig {
+        private boolean vanilla = true;
+    }
+
+    @Getter
+    @Setter
+    public static class ConfigEntityLootHook extends OkaeriConfig {
+        private boolean vanilla = true;
     }
 }

@@ -7,8 +7,8 @@ import com.chickennw.utils.models.config.head.HeadEntity;
 import jakarta.persistence.Entity;
 import lombok.Getter;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import org.hibernate.StatelessSession;
 import org.hibernate.Transaction;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import org.hibernate.cfg.Configuration;
@@ -16,6 +16,8 @@ import org.reflections.Reflections;
 import org.slf4j.Logger;
 
 import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.sql.Statement;
 import java.util.List;
 import java.util.Properties;
@@ -26,7 +28,6 @@ import java.util.concurrent.*;
 public abstract class Database {
 
     private final String BACKUP_FOLDER = "backup";
-    protected boolean isShuttingDown = false;
     protected final ExecutorService executor;
     protected final Logger logger;
     protected String databaseType;
@@ -41,7 +42,7 @@ public abstract class Database {
                     .name(config.getThreadNamePrefix() + "-database-worker-", 0)
                     .uncaughtExceptionHandler((thread, throwable) -> logger.error(throwable.getMessage(), throwable))
                     .factory();
-            executor = Executors.newThreadPerTaskExecutor(factory);
+            executor = Executors.newFixedThreadPool(threadCount, factory);
         } else {
             executor = Executors.newFixedThreadPool(threadCount, r -> {
                 Thread t = new Thread(r);
@@ -85,18 +86,18 @@ public abstract class Database {
         settings.put("log4j.logger.org.hibernate.SQL", "INFO");
         settings.put("hibernate.connection.provider_class", "org.hibernate.hikaricp.internal.HikariCPConnectionProvider");
 
-        String minIdle = config.getMysql().getMinIdle();
-        String maxPool = config.getMysql().getMaxPool();
-        String idleTimeout = config.getMysql().getIdleTimeout();
+        String minIdle = databaseType.equalsIgnoreCase("sqlite") ? "1" : config.getMinIdle();
+        String maxPool = databaseType.equalsIgnoreCase("sqlite") ? "1" : config.getMaxPool();
+        String idleTimeout = config.getIdleTimeout();
 
-        settings.put("hibernate.hikari.minimumIdle", minIdle);
-        settings.put("hibernate.hikari.maximumPoolSize", maxPool);
         settings.put("hibernate.hikari.idleTimeout", idleTimeout);
         settings.put("hibernate.hikari.poolName", plugin.getClass().getSimpleName() + "DatabasePool");
         settings.put("hibernate.transaction.jta.platform", "org.hibernate.engine.transaction.jta.platform.internal.NoJtaPlatform");
-        //settings.put("hibernate.hikari.maxLifetime", "600000");
-        //settings.put("hibernate.hikari.connectionTimeout", "20000");
-        //settings.put("hibernate.hikari.leakDetectionThreshold", "60000");
+        settings.put("hibernate.hikari.maxLifetime", "600000");
+        settings.put("hibernate.hikari.connectionTimeout", "20000");
+        settings.put("hibernate.hikari.leakDetectionThreshold", "60000");
+        settings.put("hibernate.hikari.minimumIdle", minIdle);
+        settings.put("hibernate.hikari.maximumPoolSize", maxPool);
 
         if (databaseType.equalsIgnoreCase("mysql")) {
             String host = config.getMysql().getHost();
@@ -106,17 +107,30 @@ public abstract class Database {
             String password = config.getMysql().getPassword();
             String url = String.format("jdbc:mariadb://%s:%s/%s", host, port, database);
 
-            //settings.put("hibernate.dialect", "org.hibernate.dialect.MySQLDialect");
             settings.put("hibernate.connection.driver_class", "org.mariadb.jdbc.Driver");
             settings.put("hibernate.connection.url", url);
             settings.put("hibernate.connection.username", user);
             settings.put("hibernate.connection.password", password);
-        } else {
+        } else if (databaseType.equalsIgnoreCase("h2")) {
             String path = plugin.getDataFolder().getAbsolutePath();
             settings.put("hibernate.connection.driver_class", "org.h2.Driver");
             settings.put("hibernate.connection.url", "jdbc:h2:" + path + "/database;" +
                     "AUTO_RECONNECT=TRUE;" +
                     "FILE_LOCK=NO");
+        } else if (databaseType.equalsIgnoreCase("hsqldb")) {
+            String path = plugin.getDataFolder().getAbsolutePath();
+            settings.put("hibernate.connection.driver_class", "org.hsqldb.jdbc.JDBCDriver");
+            settings.put("hibernate.connection.url", "jdbc:hsqldb:file:" + path + "/database/database;shutdown=true");
+            settings.put("hibernate.dialect", "org.hibernate.dialect.HSQLDialect");
+            settings.put("hibernate.hikari.connectionTestQuery", "VALUES (1)");
+            settings.put("hikari.connection-test-query", "VALUES (1)");
+        } else if (databaseType.equalsIgnoreCase("sqlite")) {
+            String path = plugin.getDataFolder().getAbsolutePath();
+            settings.put("hibernate.connection.driver_class", "org.sqlite.JDBC");
+            settings.put("hibernate.connection.url", "jdbc:sqlite:" + path + "/database.db");
+            settings.put("hibernate.dialect", "org.hibernate.community.dialect.SQLiteDialect");
+        } else {
+            throw new IllegalArgumentException("Unsupported database type: " + databaseType);
         }
 
         return settings;
@@ -127,17 +141,28 @@ public abstract class Database {
     }
 
     public void saveSync(Object object) {
-        Session session = sessionFactory.openSession();
-        Transaction tx = session.beginTransaction();
+        try (StatelessSession session = sessionFactory.openStatelessSession()) {
+            Transaction tx = session.beginTransaction();
+            try {
+                session.upsert(object);
+                tx.commit();
+            } catch (Exception ex) {
+                tx.rollback();
+                throw new RuntimeException("An error appeared on saving spawners sync", ex);
+            }
+        }
+    }
 
-        try {
-            session.saveOrUpdate(object);
-            tx.commit();
-        } catch (Exception ex) {
-            tx.rollback();
-            throw new RuntimeException("An error appeared on saving spawners sync", ex);
-        } finally {
-            session.close();
+    public void deleteSync(Object object) {
+        try (StatelessSession session = sessionFactory.openStatelessSession()) {
+            Transaction tx = session.beginTransaction();
+            try {
+                session.delete(object);
+                tx.commit();
+            } catch (Exception ex) {
+                tx.rollback();
+                throw new RuntimeException("An error appeared on deleting spawners sync", ex);
+            }
         }
     }
 
@@ -146,20 +171,19 @@ public abstract class Database {
     }
 
     public void saveSyncList(List<?> objects) {
-        Session session = sessionFactory.openSession();
-        Transaction tx = session.beginTransaction();
+        try (StatelessSession session = sessionFactory.openStatelessSession()) {
+            Transaction tx = session.beginTransaction();
 
-        try {
-            for (Object object : objects) {
-                session.saveOrUpdate(object);
+            try {
+                for (Object object : objects) {
+                    session.upsert(object);
+                }
+
+                tx.commit();
+            } catch (Exception ex) {
+                tx.rollback();
+                throw new RuntimeException("An error appeared on saving spawners sync", ex);
             }
-
-            tx.commit();
-        } catch (Exception ex) {
-            tx.rollback();
-            throw new RuntimeException("An error appeared on saving spawners sync", ex);
-        } finally {
-            session.close();
         }
     }
 
@@ -167,24 +191,11 @@ public abstract class Database {
         return CompletableFuture.runAsync(() -> deleteSync(object), executor);
     }
 
-    public void deleteSync(Object object) {
-        Session session = sessionFactory.openSession();
-        Transaction tx = session.beginTransaction();
-
-        try {
-            session.remove(object);
-            tx.commit();
-        } catch (Exception ex) {
-            tx.rollback();
-            throw new RuntimeException("An error appeared on deleting spawners sync", ex);
-        } finally {
-            session.close();
-        }
-    }
-
     public void testQuery() {
-        try (Session session = sessionFactory.openSession()) {
-            session.createNativeQuery("SELECT 1").getSingleResult();
+        try (StatelessSession session = sessionFactory.openStatelessSession()) {
+            session.createNativeQuery(
+                    databaseType.equalsIgnoreCase("HSQLDB") ? "VALUES (1)" : "SELECT 1"
+            ).getSingleResult();
             logger.info("Database connection test successful.");
         } catch (Exception e) {
             logger.error("Database connection test failed.", e);
@@ -192,13 +203,6 @@ public abstract class Database {
     }
 
     public void close() {
-        if (isShuttingDown) {
-            logger.info("Database is already shutting down.");
-            return;
-        }
-
-        isShuttingDown = true;
-
         try {
             executor.shutdown();
             if (!executor.awaitTermination(60, TimeUnit.SECONDS)) {
@@ -209,6 +213,7 @@ public abstract class Database {
 
             if (sessionFactory != null && !sessionFactory.isClosed()) {
                 testQuery();
+                takeBackup();
                 shutdownH2Gracefully();
 
                 sessionFactory.close();
@@ -221,24 +226,78 @@ public abstract class Database {
         }
     }
 
+    private void takeBackup() {
+        File dataFolder = ChickenUtils.getPlugin().getDataFolder();
+        File backupDir = new File(dataFolder, BACKUP_FOLDER);
+        if (!backupDir.exists()) {
+            backupDir.mkdirs();
+        }
+
+        String fileName = "backup_" + System.currentTimeMillis();
+        String backupPath = new File(backupDir, fileName).getAbsolutePath();
+
+        try {
+            if (databaseType.equalsIgnoreCase("h2")) backupH2(backupPath);
+            else if (databaseType.equalsIgnoreCase("hsqldb")) backupHSQL(backupPath);
+            else if (databaseType.equalsIgnoreCase("sqlite")) backupSQLite(backupPath);
+        } catch (Exception e) {
+            logger.warn("Failed to create backup: {}", e.getMessage());
+            logger.debug("Backup error details", e);
+        }
+    }
+
+    private void backupH2(String backupPath) {
+        try (StatelessSession session = sessionFactory.openStatelessSession()) {
+            session.doWork(connection -> {
+                try (Statement stmt = connection.createStatement()) {
+                    stmt.execute("BACKUP TO '" + backupPath + ".zip'");
+                    logger.info("H2 backup completed");
+                }
+            });
+        }
+    }
+
+    private void backupHSQL(String backupPath) {
+        try (StatelessSession session = sessionFactory.openStatelessSession()) {
+            session.doWork(connection -> {
+                boolean oldAutoCommit = connection.getAutoCommit();
+                try {
+                    connection.setAutoCommit(true);
+
+                    try (Statement stmt = connection.createStatement()) {
+                        stmt.execute("SCRIPT '" + backupPath + ".sql'");
+                        logger.info("HSQLDB backup completed");
+                    }
+                } finally {
+                    connection.setAutoCommit(oldAutoCommit);
+                }
+            });
+        }
+    }
+
+    private void backupSQLite(String backupPath) {
+        try {
+            String dbPath = ChickenUtils.getPlugin().getDataFolder().getAbsolutePath() + "/database.db";
+            File sourceFile = new File(dbPath);
+            File destFile = new File(backupPath + ".db");
+
+            if (sourceFile.exists()) {
+                Files.copy(sourceFile.toPath(), destFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+                logger.info("SQLite backup completed");
+            }
+        } catch (Exception ex) {
+            throw new RuntimeException("Failed to backup SQLite database", ex);
+        }
+    }
+
     private void shutdownH2Gracefully() {
         if (!databaseType.equalsIgnoreCase("h2")) return;
 
-        try (Session session = sessionFactory.openSession()) {
+        try (StatelessSession session = sessionFactory.openStatelessSession()) {
             session.doWork(connection -> {
                 try (Statement stmt = connection.createStatement()) {
                     stmt.execute("CHECKPOINT SYNC");
                     logger.info("Checkpoint completed");
-
-                    File dataFolder = ChickenUtils.getPlugin().getDataFolder();
-                    File backupDir = new File(dataFolder, BACKUP_FOLDER);
-                    if (!backupDir.exists()) {
-                        backupDir.mkdirs();
-                    }
-                    String fileName = "backup_" + System.currentTimeMillis() + ".zip";
-                    String backupPath = new File(backupDir, fileName).getAbsolutePath();
-                    stmt.execute("BACKUP TO '" + backupPath + "'");
-                    logger.info("Backup completed");
                 }
             });
         } catch (Exception e) {

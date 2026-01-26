@@ -103,13 +103,13 @@ public class BentoBoxHook extends AbstractPluginHook implements ProtectionHook, 
     }
 
     @Override
-    public boolean isInside(Location loc) {
+    public boolean isInside(Location islandLocation, Location targetLocation) {
         Island island = BentoBox.getInstance()
                 .getIslandsManager()
-                .getIslandAt(loc)
+                .getIslandAt(islandLocation)
                 .orElse(null);
 
-        return island != null && island.inIslandSpace(loc);
+        return island != null && island.inIslandSpace(targetLocation);
     }
 
     @EventHandler

@@ -9,13 +9,25 @@ import lombok.Setter;
 @Setter
 public class DatabaseConfiguration extends OkaeriConfig {
 
-    @Comment("You can use h2 and mysql")
+    @Comment({
+            "You can set the database type that you want to use.",
+            "",
+            "Supported Types: ",
+            "H2 - Faster in general but has a corruption risk. Using MySQL is much more preferred",
+            "MySQL - Recommended in general",
+            "HSQLDB - Recommended if you don't want to use MySQL",
+            "SQLite - Much safer choice with overall less performance"
+    })
     private String type = "h2";
-    private int threads = 5;
+    private int threads = 10;
     private int saveIntervalInMinutes = 1;
     private boolean enableVirtualThreads = true;
     private String threadNamePrefix = "utils";
     private int batchSaveSize = 50;
+    private String minIdle = "5";
+    private String maxPool = "10";
+    private String idleTimeout = "30000";
+
     private MySQL mysql = new MySQL();
 
     @Setter
@@ -27,8 +39,5 @@ public class DatabaseConfiguration extends OkaeriConfig {
         private String database = "db";
         private String user = "user";
         private String password = "mypassword";
-        private String minIdle = "5";
-        private String maxPool = "5";
-        private String idleTimeout = "30000";
     }
 }
