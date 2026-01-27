@@ -13,8 +13,8 @@ import me.angeschossen.lands.api.player.LandPlayer;
 import me.angeschossen.lands.api.player.chat.ChatMode;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.World;
-import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.jetbrains.annotations.Nullable;
@@ -54,8 +54,8 @@ public class LandsHook extends AbstractPluginHook implements ProtectionHook, Lis
     }
 
     @Override
-    public @Nullable UUID getIslandUUID(Player player) {
-        LandPlayer landPlayer = landsIntegration.getLandPlayer(player.getUniqueId());
+    public @Nullable UUID getIslandUUID(OfflinePlayer offlinePlayer) {
+        LandPlayer landPlayer = landsIntegration.getLandPlayer(offlinePlayer.getUniqueId());
         return landPlayer.getLands().isEmpty() ? null : landPlayer.getLands().iterator().next().getOwnerUID();
     }
 
@@ -75,23 +75,23 @@ public class LandsHook extends AbstractPluginHook implements ProtectionHook, Lis
     }
 
     @Override
-    public boolean canPlayerBuild(Location loc, Player player) {
+    public boolean canPlayerBuild(Location loc, OfflinePlayer offlinePlayer) {
         List<UUID> members = getMembers(loc);
         UUID owner = getOwner(loc);
 
-        if (owner != null) return members.contains(player.getUniqueId()) || owner.equals(player.getUniqueId());
+        if (owner != null) return members.contains(offlinePlayer.getUniqueId()) || owner.equals(offlinePlayer.getUniqueId());
         return false;
     }
 
     @Override
-    public boolean hasProtection(Player player) {
-        LandPlayer landPlayer = landsIntegration.getLandPlayer(player.getUniqueId());
+    public boolean hasProtection(OfflinePlayer offlinePlayer) {
+        LandPlayer landPlayer = landsIntegration.getLandPlayer(offlinePlayer.getUniqueId());
         return !landPlayer.getLands().isEmpty();
     }
 
     @Override
-    public boolean isInternalChatEnabled(Player player) {
-        ChatMode mode = landsIntegration.getLandPlayer(player.getUniqueId()).getChatMode();
+    public boolean isInternalChatEnabled(OfflinePlayer offlinePlayer) {
+        ChatMode mode = landsIntegration.getLandPlayer(offlinePlayer.getUniqueId()).getChatMode();
         return mode == ChatMode.LAND;
     }
 

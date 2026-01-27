@@ -9,7 +9,7 @@ import dev.espi.protectionstones.PSRegion;
 import dev.espi.protectionstones.event.PSRemoveEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
-import org.bukkit.entity.Player;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.jetbrains.annotations.Nullable;
@@ -49,23 +49,23 @@ public class ProtectionStonesHook extends AbstractPluginHook implements Protecti
     }
 
     @Override
-    public boolean canPlayerBuild(Location loc, Player p) {
+    public boolean canPlayerBuild(Location loc, OfflinePlayer offlinePlayer) {
         PSRegion region = PSRegion.fromLocation(loc);
         if (region != null) {
-            return (region.isMember(p.getUniqueId()) || region.isOwner(p.getUniqueId()));
+            return (region.isMember(offlinePlayer.getUniqueId()) || region.isOwner(offlinePlayer.getUniqueId()));
         }
 
         return false;
     }
 
     @Override
-    public boolean hasProtection(Player player) {
-        PSPlayer psPlayer = PSPlayer.fromPlayer(player);
-        return !psPlayer.getPSRegions(player.getWorld(), true).isEmpty();
+    public boolean hasProtection(OfflinePlayer offlinePlayer) {
+        PSPlayer psPlayer = PSPlayer.fromPlayer(offlinePlayer);
+        return !psPlayer.getPSRegions(offlinePlayer.getPlayer().getWorld(), true).isEmpty();
     }
 
     @Override
-    public boolean isInternalChatEnabled(Player player) {
+    public boolean isInternalChatEnabled(OfflinePlayer offlinePlayer) {
         return false;
     }
 
@@ -99,9 +99,9 @@ public class ProtectionStonesHook extends AbstractPluginHook implements Protecti
     }
 
     @Override
-    public @Nullable UUID getIslandUUID(Player player) {
-        PSPlayer psPlayer = PSPlayer.fromPlayer(player);
-        List<PSRegion> regions = psPlayer.getPSRegions(player.getWorld(), true);
+    public @Nullable UUID getIslandUUID(OfflinePlayer offlinePlayer) {
+        PSPlayer psPlayer = PSPlayer.fromPlayer(offlinePlayer);
+        List<PSRegion> regions = psPlayer.getPSRegions(offlinePlayer.getPlayer().getWorld(), true);
         if (!regions.isEmpty()) return UUID.fromString(regions.getFirst().getId());
 
         return null;

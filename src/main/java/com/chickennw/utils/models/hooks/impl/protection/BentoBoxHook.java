@@ -7,7 +7,7 @@ import com.chickennw.utils.models.hooks.AbstractPluginHook;
 import com.chickennw.utils.models.hooks.types.ProtectionHook;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
-import org.bukkit.entity.Player;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.jetbrains.annotations.Nullable;
@@ -50,11 +50,12 @@ public class BentoBoxHook extends AbstractPluginHook implements ProtectionHook, 
     }
 
     @Override
-    public @Nullable UUID getIslandUUID(Player player) {
-        Island island = BentoBox.getInstance().getIslandsManager().getIsland(player.getWorld(), player.getUniqueId());
+    public @Nullable UUID getIslandUUID(OfflinePlayer offlinePlayer) {
+        Island island = BentoBox.getInstance().getIslandsManager().getIsland(offlinePlayer.getPlayer().getWorld(), offlinePlayer.getUniqueId());
         if (island != null) {
             return parseUUID(island.getUniqueId());
         }
+
         return null;
     }
 
@@ -74,21 +75,21 @@ public class BentoBoxHook extends AbstractPluginHook implements ProtectionHook, 
     }
 
     @Override
-    public boolean canPlayerBuild(Location loc, Player player) {
+    public boolean canPlayerBuild(Location loc, OfflinePlayer offlinePlayer) {
         Optional<Island> island = BentoBox.getInstance().getIslands().getIslandAt(loc);
-        return island.filter(value -> value.getMemberSet().contains(player.getUniqueId())
-                || value.getOwner().equals(player.getUniqueId())).isPresent();
+        return island.filter(value -> value.getMemberSet().contains(offlinePlayer.getUniqueId())
+                || value.getOwner().equals(offlinePlayer.getUniqueId())).isPresent();
     }
 
     @Override
-    public boolean hasProtection(Player player) {
-        Island island = BentoBox.getInstance().getIslandsManager().getIsland(player.getWorld(), player.getUniqueId());
+    public boolean hasProtection(OfflinePlayer offlinePlayer) {
+        Island island = BentoBox.getInstance().getIslandsManager().getIsland(offlinePlayer.getPlayer().getWorld(), offlinePlayer.getUniqueId());
         return island != null;
     }
 
     @Override
-    public boolean isInternalChatEnabled(Player player) {
-        Players players = BentoBox.getInstance().getPlayers().getPlayer(player.getUniqueId());
+    public boolean isInternalChatEnabled(OfflinePlayer offlinePlayer) {
+        Players players = BentoBox.getInstance().getPlayers().getPlayer(offlinePlayer.getUniqueId());
         return false; // I couldn't find the proper boolean :(
     }
 

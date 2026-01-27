@@ -14,7 +14,7 @@ import com.palmergames.bukkit.towny.object.TownBlock;
 import com.palmergames.bukkit.towny.object.WorldCoord;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
-import org.bukkit.entity.Player;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.jetbrains.annotations.Nullable;
@@ -51,8 +51,8 @@ public class TownyHook extends AbstractPluginHook implements ProtectionHook, Lis
     }
 
     @Override
-    public @Nullable UUID getIslandUUID(Player player) {
-        Town town = TownyAPI.getInstance().getTown(player);
+    public @Nullable UUID getIslandUUID(OfflinePlayer offlinePlayer) {
+        Town town = TownyAPI.getInstance().getTown(offlinePlayer.getUniqueId());
         return town == null ? null : town.getUUID();
     }
 
@@ -73,24 +73,24 @@ public class TownyHook extends AbstractPluginHook implements ProtectionHook, Lis
     }
 
     @Override
-    public boolean canPlayerBuild(Location loc, Player player) {
+    public boolean canPlayerBuild(Location loc, OfflinePlayer offlinePlayer) {
         Town town = TownyAPI.getInstance().getTown(loc);
         if (town == null) return false;
 
-        Resident resident = TownyAPI.getInstance().getResident(player);
+        Resident resident = TownyAPI.getInstance().getResident(offlinePlayer.getUniqueId());
         if (resident == null) return false;
 
         return town.hasResident(resident);
     }
 
     @Override
-    public boolean hasProtection(Player player) {
-        Town town = TownyAPI.getInstance().getTown(player);
+    public boolean hasProtection(OfflinePlayer offlinePlayer) {
+        Town town = TownyAPI.getInstance().getTown(offlinePlayer.getUniqueId());
         return town != null;
     }
 
     @Override
-    public boolean isInternalChatEnabled(Player player) {
+    public boolean isInternalChatEnabled(OfflinePlayer offlinePlayer) {
         return false;
     }
 

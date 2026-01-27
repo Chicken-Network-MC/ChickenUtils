@@ -2,6 +2,7 @@ package com.chickennw.utils.models.hooks.types;
 
 import com.chickennw.utils.models.hooks.PluginHook;
 import org.bukkit.Location;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.Nullable;
 
@@ -14,18 +15,18 @@ public interface ProtectionHook extends PluginHook {
     UUID getIslandUUID(Location loc);
 
     @Nullable
-    UUID getIslandUUID(Player player);
+    UUID getIslandUUID(OfflinePlayer offlinePlayer);
 
     @Nullable
     UUID getOwner(Location loc);
 
     List<UUID> getMembers(Location loc);
 
-    boolean canPlayerBuild(Location loc, Player player);
+    boolean canPlayerBuild(Location loc, OfflinePlayer offlinePlayer);
 
-    boolean hasProtection(Player player);
+    boolean hasProtection(OfflinePlayer offlinePlayer);
 
-    boolean isInternalChatEnabled(Player player);
+    boolean isInternalChatEnabled(OfflinePlayer offlinePlayer);
 
     Location getCenter(Location loc);
 

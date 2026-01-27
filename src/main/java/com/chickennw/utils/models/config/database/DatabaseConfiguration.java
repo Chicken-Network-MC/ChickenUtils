@@ -11,14 +11,13 @@ public class DatabaseConfiguration extends OkaeriConfig {
 
     @Comment({
             "You can set the database type that you want to use.",
-            "",
             "Supported Types: ",
             "H2 - Faster in general but has a corruption risk. Using MySQL is much more preferred",
             "MySQL - Recommended in general",
             "HSQLDB - Recommended if you don't want to use MySQL",
             "SQLite - Much safer choice with overall less performance"
     })
-    private String type = "h2";
+    private String type = "sqlite";
     private int threads = 10;
     private int saveIntervalInMinutes = 1;
     private boolean enableVirtualThreads = true;

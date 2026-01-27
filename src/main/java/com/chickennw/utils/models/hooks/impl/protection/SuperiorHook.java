@@ -15,6 +15,7 @@ import com.chickennw.utils.models.hooks.AbstractPluginHook;
 import com.chickennw.utils.models.hooks.types.ProtectionHook;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -52,8 +53,8 @@ public class SuperiorHook extends AbstractPluginHook implements ProtectionHook, 
     }
 
     @Override
-    public @Nullable UUID getIslandUUID(Player player) {
-        SuperiorPlayer superiorPlayer = SuperiorSkyblockAPI.getPlayer(player);
+    public @Nullable UUID getIslandUUID(OfflinePlayer offlinePlayer) {
+        SuperiorPlayer superiorPlayer = SuperiorSkyblockAPI.getPlayer(offlinePlayer.getUniqueId());
         if (superiorPlayer != null) {
             Island island = superiorPlayer.getIsland();
             return island.getUniqueId();
@@ -82,10 +83,10 @@ public class SuperiorHook extends AbstractPluginHook implements ProtectionHook, 
     }
 
     @Override
-    public boolean canPlayerBuild(Location loc, Player player) {
+    public boolean canPlayerBuild(Location loc, OfflinePlayer offlinePlayer) {
         Island island = SuperiorSkyblockAPI.getIslandAt(loc);
         if (island != null) {
-            SuperiorPlayer superiorPlayer = SuperiorSkyblockAPI.getPlayer(player);
+            SuperiorPlayer superiorPlayer = SuperiorSkyblockAPI.getPlayer(offlinePlayer.getUniqueId());
             return (island.getIslandMembers(true).contains(superiorPlayer) || island.getIslandMembers().contains(superiorPlayer) || island.getOwner()
                     .equals(superiorPlayer) || island.getCoopPlayers().contains(superiorPlayer));
         }
@@ -94,14 +95,14 @@ public class SuperiorHook extends AbstractPluginHook implements ProtectionHook, 
     }
 
     @Override
-    public boolean hasProtection(Player player) {
-        SuperiorPlayer superiorPlayer = SuperiorSkyblockAPI.getPlayer(player);
+    public boolean hasProtection(OfflinePlayer offlinePlayer) {
+        SuperiorPlayer superiorPlayer = SuperiorSkyblockAPI.getPlayer(offlinePlayer.getUniqueId());
         return superiorPlayer != null && superiorPlayer.getIsland() != null;
     }
 
     @Override
-    public boolean isInternalChatEnabled(Player player) {
-        SuperiorPlayer superiorPlayer = SuperiorSkyblockAPI.getPlayer(player);
+    public boolean isInternalChatEnabled(OfflinePlayer offlinePlayer) {
+        SuperiorPlayer superiorPlayer = SuperiorSkyblockAPI.getPlayer(offlinePlayer.getUniqueId());
         return superiorPlayer.hasTeamChatEnabled();
     }
 
