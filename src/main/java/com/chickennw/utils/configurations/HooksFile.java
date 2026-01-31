@@ -33,6 +33,8 @@ public class HooksFile extends OkaeriConfig {
 
         private boolean economyShopGui = true;
 
+        private boolean excellentShops = true;
+
         private boolean customWorthFile = false;
     }
 

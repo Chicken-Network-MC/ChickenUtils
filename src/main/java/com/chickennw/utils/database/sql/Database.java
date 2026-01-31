@@ -7,8 +7,8 @@ import com.chickennw.utils.models.config.head.HeadEntity;
 import jakarta.persistence.Entity;
 import lombok.Getter;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.hibernate.Session;
 import org.hibernate.SessionFactory;
-import org.hibernate.StatelessSession;
 import org.hibernate.Transaction;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import org.hibernate.cfg.Configuration;
@@ -35,7 +35,7 @@ public abstract class Database {
 
     public Database(JavaPlugin plugin, DatabaseConfiguration config) {
         logger = LoggerFactory.getLogger();
-        int threadCount = config.getThreads();
+        int threadCount = config.getType().equalsIgnoreCase("sqlite") ? 1 : config.getThreads();
 
         if (config.isEnableVirtualThreads()) {
             ThreadFactory factory = Thread.ofVirtual()
@@ -141,10 +141,10 @@ public abstract class Database {
     }
 
     public void saveSync(Object object) {
-        try (StatelessSession session = sessionFactory.openStatelessSession()) {
+        try (Session session = sessionFactory.openSession()) {
             Transaction tx = session.beginTransaction();
             try {
-                session.upsert(object);
+                session.merge(object);
                 tx.commit();
             } catch (Exception ex) {
                 tx.rollback();
@@ -154,10 +154,10 @@ public abstract class Database {
     }
 
     public void deleteSync(Object object) {
-        try (StatelessSession session = sessionFactory.openStatelessSession()) {
+        try (Session session = sessionFactory.openSession()) {
             Transaction tx = session.beginTransaction();
             try {
-                session.delete(object);
+                session.remove(object);
                 tx.commit();
             } catch (Exception ex) {
                 tx.rollback();
@@ -171,12 +171,12 @@ public abstract class Database {
     }
 
     public void saveSyncList(List<?> objects) {
-        try (StatelessSession session = sessionFactory.openStatelessSession()) {
+        try (Session session = sessionFactory.openSession()) {
             Transaction tx = session.beginTransaction();
 
             try {
                 for (Object object : objects) {
-                    session.upsert(object);
+                    session.merge(object);
                 }
 
                 tx.commit();
@@ -192,7 +192,7 @@ public abstract class Database {
     }
 
     public void testQuery() {
-        try (StatelessSession session = sessionFactory.openStatelessSession()) {
+        try (Session session = sessionFactory.openSession()) {
             session.createNativeQuery(
                     databaseType.equalsIgnoreCase("HSQLDB") ? "VALUES (1)" : "SELECT 1"
             ).getSingleResult();
@@ -247,7 +247,7 @@ public abstract class Database {
     }
 
     private void backupH2(String backupPath) {
-        try (StatelessSession session = sessionFactory.openStatelessSession()) {
+        try (Session session = sessionFactory.openSession()) {
             session.doWork(connection -> {
                 try (Statement stmt = connection.createStatement()) {
                     stmt.execute("BACKUP TO '" + backupPath + ".zip'");
@@ -258,7 +258,7 @@ public abstract class Database {
     }
 
     private void backupHSQL(String backupPath) {
-        try (StatelessSession session = sessionFactory.openStatelessSession()) {
+        try (Session session = sessionFactory.openSession()) {
             session.doWork(connection -> {
                 boolean oldAutoCommit = connection.getAutoCommit();
                 try {
@@ -293,7 +293,7 @@ public abstract class Database {
     private void shutdownH2Gracefully() {
         if (!databaseType.equalsIgnoreCase("h2")) return;
 
-        try (StatelessSession session = sessionFactory.openStatelessSession()) {
+        try (Session session = sessionFactory.openSession()) {
             session.doWork(connection -> {
                 try (Statement stmt = connection.createStatement()) {
                     stmt.execute("CHECKPOINT SYNC");

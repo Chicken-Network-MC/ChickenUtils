@@ -82,6 +82,10 @@
                                     <pattern>net.kyori</pattern>
                                     <shadedPattern>com.chickennw.utils.libs.kyori</shadedPattern>
                                 </relocation>
+                                <relocation>
+                                    <pattern>com.cryptomorin.xseries</pattern>
+                                    <shadedPattern>com.chickennw.utils.libs.xseries</shadedPattern>
+                                </relocation>
                             </relocations>
                             <filters>
                                 <filter>
