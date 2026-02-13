@@ -2,7 +2,6 @@ package com.chickennw.utils.models.hooks.types;
 
 import com.chickennw.utils.models.hooks.PluginHook;
 import com.chickennw.utils.utils.ChatUtils;
-import net.kyori.adventure.text.minimessage.internal.parser.ParsingExceptionImpl;
 import org.bukkit.Location;
 
 import java.util.ArrayList;
@@ -25,7 +24,7 @@ public interface HologramHook extends PluginHook {
             List<String> converted = new ArrayList<>();
             lines.forEach(line -> converted.add(ChatUtils.colorizeLegacy(line)));
             return converted;
-        } catch (ParsingExceptionImpl ignored) {
+        } catch (Exception ignored) {
             List<String> converted = new ArrayList<>();
             lines.forEach(line -> converted.add(line.replace("&", "§")));
             return converted;
