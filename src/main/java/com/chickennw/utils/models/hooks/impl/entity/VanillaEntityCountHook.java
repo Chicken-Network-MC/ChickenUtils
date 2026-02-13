@@ -12,8 +12,7 @@ import java.util.UUID;
 @SuppressWarnings("unused")
 public class VanillaEntityCountHook extends AbstractPluginHook implements EntityCountHook {
 
-    @Getter
-    private static final String KILLED_BY_VANILLA_HOOK_KEY = "KILLED_BY_VANILLA_HOOK";
+    public static final String KILLED_BY_VANILLA_HOOK_KEY = "KILLED_BY_VANILLA_HOOK";
 
     public VanillaEntityCountHook() {
         super("Vanilla Entity Count Hook", false, "vanilla");

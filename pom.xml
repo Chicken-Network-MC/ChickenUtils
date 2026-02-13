@@ -6,7 +6,7 @@
 
     <groupId>com.chickennw</groupId>
     <artifactId>chicken-utils</artifactId>
-    <version>1.3.6</version>
+    <version>1.4.0</version>
     <packaging>jar</packaging>
 
     <name>ChickenUtils</name>
@@ -492,6 +492,13 @@
             <artifactId>VaultAPI</artifactId>
             <version>1.7</version>
             <scope>provided</scope>
+        </dependency>
+
+        <!-- Entity -->
+        <dependency>
+            <groupId>com.bgsoftware</groupId>
+            <artifactId>WildStackerAPI</artifactId>
+            <version>2025.2</version>
         </dependency>
 
         <!-- Packet Events -->
