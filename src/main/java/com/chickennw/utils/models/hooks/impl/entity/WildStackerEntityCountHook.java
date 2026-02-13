@@ -29,7 +29,7 @@ public class WildStackerEntityCountHook extends AbstractPluginHook implements En
 
     @Override
     public boolean isEnabled() {
-        return hooksFile.getEntityCountHooks().isVanilla();
+        return hooksFile.getEntityCountHooks().isWildStacker();
     }
 
     @Override

@@ -51,7 +51,9 @@ public class HooksFile extends OkaeriConfig {
     @Getter
     @Setter
     public static class ConfigEntityCountHook extends OkaeriConfig {
+
         private boolean vanilla = true;
+        private boolean wildStacker = true;
     }
 
     @Getter
