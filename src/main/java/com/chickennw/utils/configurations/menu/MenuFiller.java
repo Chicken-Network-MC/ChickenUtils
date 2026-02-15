@@ -20,5 +20,9 @@ public class MenuFiller extends OkaeriConfig {
 
     private boolean enabled = true;
     private MenuItemStack fillerItem = new MenuItemStack(" ", "BLACK_STAINED_GLASS_PANE", -1, List.of());
+
+    public MenuFiller(boolean enabled) {
+        this.enabled = enabled;
+    }
 }
 
