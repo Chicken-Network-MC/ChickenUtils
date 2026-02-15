@@ -34,6 +34,14 @@ public abstract class RedisDatabase {
         addListener();
     }
 
+    public RedisDatabase(String host, int port, String password, String user) {
+        redisClient = RedisClient.create(RedisURI.Builder.redis(host, port).withAuthentication(user, password).withDatabase(0).build());
+        pubSubConnection = redisClient.connectPubSub();
+        redisConnection = redisClient.connect();
+
+        addListener();
+    }
+
     public void publish(RedisMessage message) {
         redisConnection.async().publish(message.channel(), message.message().toString());
     }
