@@ -1,4 +1,4 @@
-package com.chickennw.utils.models.menus.triumph;
+package com.chickennw.utils.models.menus;
 
 import com.chickennw.utils.ChickenUtils;
 import com.chickennw.utils.configurations.menu.MenuFiller;
@@ -6,7 +6,7 @@ import com.chickennw.utils.configurations.menu.SymboledMenuItem;
 import com.chickennw.utils.logger.LoggerFactory;
 import com.chickennw.utils.managers.MenuManager;
 import com.chickennw.utils.models.config.menu.TriumphMenuConfiguration;
-import com.chickennw.utils.models.menus.triumph.item.TriumphItemHolder;
+import com.chickennw.utils.models.menus.item.TriumphItemHolder;
 import com.chickennw.utils.utils.ChatUtils;
 import com.chickennw.utils.utils.NbtUtils;
 import dev.triumphteam.gui.builder.item.ItemBuilder;

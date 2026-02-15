@@ -91,7 +91,7 @@ public class ChatUtils {
             Component component = MINI_MESSAGE.deserialize(message);
             return LEGACY_COMPONENT_SERIALIZER.serialize(component);
         } catch (Exception e) {
-            e.printStackTrace();
+            //e.printStackTrace();
             return LEGACY_COMPONENT_SERIALIZER.serialize(LEGACY_COMPONENT_SERIALIZER.deserialize(message));
         }
     }

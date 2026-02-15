@@ -6,7 +6,7 @@
 
     <groupId>com.chickennw</groupId>
     <artifactId>chicken-utils</artifactId>
-    <version>1.4.1</version>
+    <version>1.4.2</version>
     <packaging>jar</packaging>
 
     <name>ChickenUtils</name>
@@ -53,10 +53,6 @@
                                 <relocation>
                                     <pattern>org.jetbrains.annotations</pattern>
                                     <shadedPattern>com.chickennw.utils.libs.annotations</shadedPattern>
-                                </relocation>
-                                <relocation>
-                                    <pattern>de.themoep</pattern>
-                                    <shadedPattern>com.chickennw.utils.libs.themoep</shadedPattern>
                                 </relocation>
                                 <relocation>
                                     <pattern>dev.triumphteam.gui</pattern>
@@ -333,11 +329,6 @@
         </dependency>
 
         <!--For menu lib-->
-        <dependency>
-            <groupId>com.github.Chicken-Network-MC</groupId>
-            <artifactId>InventoryGui</artifactId>
-            <version>3658c90d18</version>
-        </dependency>
         <dependency>
             <groupId>dev.triumphteam</groupId>
             <artifactId>triumph-gui</artifactId>

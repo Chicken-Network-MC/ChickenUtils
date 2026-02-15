@@ -1,4 +1,4 @@
-package com.chickennw.utils.models.menus.triumph;
+package com.chickennw.utils.models.menus;
 
 public enum MenuType {
 

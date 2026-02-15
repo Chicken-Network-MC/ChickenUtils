@@ -1,4 +1,4 @@
-package com.chickennw.utils.models.menus.triumph.item;
+package com.chickennw.utils.models.menus.item;
 
 import dev.triumphteam.gui.guis.GuiItem;
 
