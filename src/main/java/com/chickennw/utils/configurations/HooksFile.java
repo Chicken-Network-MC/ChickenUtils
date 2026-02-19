@@ -20,6 +20,8 @@ public class HooksFile extends OkaeriConfig {
 
     private ConfigEntityLootHook entityLootHooks = new ConfigEntityLootHook();
 
+    private OtherHook otherHooks = new OtherHook();
+
     @Getter
     @Setter
     public static class ConfigPriceHook extends OkaeriConfig {
@@ -60,5 +62,11 @@ public class HooksFile extends OkaeriConfig {
     @Setter
     public static class ConfigEntityLootHook extends OkaeriConfig {
         private boolean vanilla = true;
+    }
+
+    @Getter
+    @Setter
+    public static class OtherHook extends OkaeriConfig {
+        private boolean skinRestorer = true;
     }
 }

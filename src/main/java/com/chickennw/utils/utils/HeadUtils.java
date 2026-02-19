@@ -1,5 +1,6 @@
 package com.chickennw.utils.utils;
 
+import com.chickennw.utils.configurations.HooksFile;
 import com.chickennw.utils.database.sql.Database;
 import com.chickennw.utils.models.config.head.HeadEntity;
 import com.cryptomorin.xseries.profiles.builder.XSkull;
@@ -7,6 +8,7 @@ import com.cryptomorin.xseries.profiles.objects.ProfileInputType;
 import com.cryptomorin.xseries.profiles.objects.Profileable;
 import com.destroystokyo.paper.profile.PlayerProfile;
 import com.destroystokyo.paper.profile.ProfileProperty;
+import net.skinsrestorer.api.property.SkinProperty;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
@@ -28,8 +30,15 @@ public class HeadUtils {
     private static final ConcurrentHashMap<String, ItemStack> headsWithTexture = new ConcurrentHashMap<>();
     private static final List<HeadEntity> cachedHeads = new ArrayList<>();
     private static Database database;
+    private static boolean skinRestorerEnabled;
 
     public static void init(Database db) {
+        HooksFile hooksFile = ConfigUtils.get(HooksFile.class);
+        if (hooksFile.getOtherHooks().isSkinRestorer() && Bukkit.getPluginManager().getPlugin("SkinRestorer") != null) {
+            skinRestorerEnabled = true;
+            SkinRestorerUtils.init();
+        }
+
         database = db;
         try (Session session = database.getSessionFactory().openSession()) {
             List<HeadEntity> heads = session.createQuery("from HeadEntity", HeadEntity.class).list();
@@ -43,18 +52,37 @@ public class HeadUtils {
             return CompletableFuture.completedFuture(itemStack);
         }
 
+        if (skinRestorerEnabled) {
+            OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(uuid);
+            if (offlinePlayer.getName() != null) {
+                SkinProperty playerSkin = SkinRestorerUtils.getPlayerSkin(uuid, offlinePlayer.getName());
+                if (playerSkin != null) {
+                    return getHead(playerSkin.getValue())
+                        .whenComplete((head, throwable) -> {
+                            if (head == null) head = new ItemStack(Material.PLAYER_HEAD);
+                            HeadUtils.cache(uuid, head);
+                        }).exceptionally(t -> {
+                            ItemStack fallbackHead = new ItemStack(Material.PLAYER_HEAD);
+                            HeadUtils.cache(uuid, fallbackHead);
+                            return fallbackHead.clone();
+                        })
+                        .orTimeout(1, TimeUnit.SECONDS);
+                }
+            }
+        }
+
         return XSkull.createItem()
-                .profile(Profileable.of(uuid))
-                .applyAsync()
-                .orTimeout(3, TimeUnit.SECONDS)
-                .whenComplete((head, throwable) -> {
-                    if (head == null) head = new ItemStack(Material.PLAYER_HEAD);
-                    HeadUtils.cache(uuid, head);
-                }).exceptionally(t -> {
-                    ItemStack fallbackHead = new ItemStack(Material.PLAYER_HEAD);
-                    HeadUtils.cache(uuid, fallbackHead);
-                    return fallbackHead.clone();
-                });
+            .profile(Profileable.of(uuid))
+            .applyAsync()
+            .orTimeout(3, TimeUnit.SECONDS)
+            .whenComplete((head, throwable) -> {
+                if (head == null) head = new ItemStack(Material.PLAYER_HEAD);
+                HeadUtils.cache(uuid, head);
+            }).exceptionally(t -> {
+                ItemStack fallbackHead = new ItemStack(Material.PLAYER_HEAD);
+                HeadUtils.cache(uuid, fallbackHead);
+                return fallbackHead.clone();
+            });
     }
 
     public static CompletableFuture<ItemStack> getHead(String texture) {
@@ -65,9 +93,9 @@ public class HeadUtils {
 
         ProfileInputType type = texture.startsWith("ey") ? ProfileInputType.BASE64 : ProfileInputType.TEXTURE_URL;
         CompletableFuture<ItemStack> headFuture = XSkull.createItem()
-                .profile(Profileable.of(type, texture))
-                .applyAsync()
-                .orTimeout(3, TimeUnit.SECONDS);
+            .profile(Profileable.of(type, texture))
+            .applyAsync()
+            .orTimeout(3, TimeUnit.SECONDS);
         headFuture.whenComplete((head, throwable) -> {
             HeadUtils.cache(texture, head);
         });
@@ -150,9 +178,9 @@ public class HeadUtils {
         if (profile == null) return null;
 
         return profile.getProperties()
-                .stream()
-                .filter(p -> p.getName().equals("textures"))
-                .findFirst()
-                .orElse(null);
+            .stream()
+            .filter(p -> p.getName().equals("textures"))
+            .findFirst()
+            .orElse(null);
     }
 }
