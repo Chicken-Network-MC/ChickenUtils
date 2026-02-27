@@ -36,9 +36,9 @@ public class NPCManager {
         logger = LoggerFactory.getLogger();
 
         ThreadFactory factory = Thread.ofVirtual()
-                .name(plugin.getName() + "-npc-worker-", 0)
-                .uncaughtExceptionHandler((thread, throwable) -> logger.error(throwable.getMessage(), throwable))
-                .factory();
+            .name(plugin.getName() + "-npc-worker-", 0)
+            .uncaughtExceptionHandler((thread, throwable) -> logger.error(throwable.getMessage(), throwable))
+            .factory();
         executor = Executors.newSingleThreadExecutor(factory);
         startTicking();
     }
@@ -58,8 +58,9 @@ public class NPCManager {
     private void startTicking() {
         long tickInterval = 20L;
 
-        plugin.getServer().getScheduler().runTaskTimerAsynchronously(plugin, () -> {
-            npcs.values().forEach(npc -> executor.submit(npc.getUpdateTask()));
-        }, tickInterval, tickInterval);
+        ChickenUtils.getFoliaLib()
+            .getScheduler()
+            .runTimerAsync(() -> npcs.values().forEach(npc -> executor.submit(npc.getUpdateTask())), tickInterval, tickInterval);
+
     }
 }

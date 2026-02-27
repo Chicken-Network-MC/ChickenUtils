@@ -1,13 +1,14 @@
 package com.chickennw.utils.database.redis;
 
+import com.chickennw.utils.ChickenUtils;
 import com.chickennw.utils.models.config.redis.RedisConfiguration;
 import com.chickennw.utils.models.redis.RedisMessage;
-import io.lettuce.core.RedisClient;
-import io.lettuce.core.RedisURI;
-import io.lettuce.core.api.StatefulRedisConnection;
-import io.lettuce.core.pubsub.RedisPubSubAdapter;
-import io.lettuce.core.pubsub.StatefulRedisPubSubConnection;
 import lombok.Getter;
+import redis.clients.jedis.ConnectionPoolConfig;
+import redis.clients.jedis.DefaultJedisClientConfig;
+import redis.clients.jedis.JedisPubSub;
+import redis.clients.jedis.RedisClient;
+import redis.clients.jedis.builders.StandaloneClientBuilder;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,55 +17,80 @@ import java.util.List;
 public abstract class RedisDatabase {
 
     private final List<String> subscribedChannels = new ArrayList<>();
-
     protected final RedisClient redisClient;
-    protected final StatefulRedisConnection<String, String> redisConnection;
-    protected final StatefulRedisPubSubConnection<String, String> pubSubConnection;
+    private JedisPubSub jedisPubSub;
+    private Thread subscribeThread;
 
     public RedisDatabase(RedisConfiguration redisConfiguration) {
-        String host = redisConfiguration.getHost();
-        int port = redisConfiguration.getPort();
-        String password = redisConfiguration.getPassword();
-        String user = redisConfiguration.getUser();
-
-        redisClient = RedisClient.create(RedisURI.Builder.redis(host, port).withAuthentication(user, password).withDatabase(0).build());
-        pubSubConnection = redisClient.connectPubSub();
-        redisConnection = redisClient.connect();
-
-        addListener();
+        this.redisClient = buildClient(
+            redisConfiguration.getHost(),
+            redisConfiguration.getPort(),
+            redisConfiguration.getUser(),
+            redisConfiguration.getPassword()
+        );
     }
 
     public RedisDatabase(String host, int port, String password, String user) {
-        redisClient = RedisClient.create(RedisURI.Builder.redis(host, port).withAuthentication(user, password).withDatabase(0).build());
-        pubSubConnection = redisClient.connectPubSub();
-        redisConnection = redisClient.connect();
+        this.redisClient = buildClient(host, port, user, password);
+    }
 
-        addListener();
+    private static RedisClient buildClient(String host, int port, String user, String password) {
+        StandaloneClientBuilder<RedisClient> builder = RedisClient.builder().hostAndPort(host, port);
+
+        if (password != null && !password.isEmpty()) {
+            DefaultJedisClientConfig clientConfig = DefaultJedisClientConfig.builder()
+                .user(user)
+                .password(password)
+                .database(0)
+                .connectionTimeoutMillis(2000)
+                .socketTimeoutMillis(2000)
+                .build();
+            builder.clientConfig(clientConfig);
+        }
+
+        ConnectionPoolConfig poolConfig = new ConnectionPoolConfig();
+        builder.poolConfig(poolConfig);
+
+        return builder.build();
     }
 
     public void publish(RedisMessage message) {
-        redisConnection.async().publish(message.channel(), message.message().toString());
+        redisClient.publish(message.channel(), message.message().toString());
     }
 
     public void subscribe(String channel) {
-        pubSubConnection.async().subscribe(channel);
         subscribedChannels.add(channel);
+        restartSubscription();
     }
 
     public void unsubscribe() {
-        subscribedChannels.forEach(pubSubConnection.sync()::unsubscribe);
+        if (jedisPubSub != null && jedisPubSub.isSubscribed()) {
+            jedisPubSub.unsubscribe();
+        }
+
         subscribedChannels.clear();
     }
 
-    private void addListener() {
-        pubSubConnection.async().getStatefulConnection().addListener(new RedisPubSubAdapter<>() {
-            @Override
-            public void message(String channelName, String message) {
-                if (!subscribedChannels.contains(channelName)) return;
+    private void restartSubscription() {
+        if (jedisPubSub != null && jedisPubSub.isSubscribed()) {
+            jedisPubSub.unsubscribe();
+        }
 
-                onMessage(channelName, message);
+        if (subscribedChannels.isEmpty()) return;
+
+        jedisPubSub = new JedisPubSub() {
+            @Override
+            public void onMessage(String channelName, String message) {
+                if (!subscribedChannels.contains(channelName)) return;
+                RedisDatabase.this.onMessage(channelName, message);
             }
-        });
+        };
+
+        String[] channels = subscribedChannels.toArray(new String[0]);
+        String pluginName = ChickenUtils.getPlugin().getName();
+        subscribeThread = new Thread(() -> redisClient.subscribe(jedisPubSub, channels), pluginName + "-PubSub");
+        subscribeThread.setDaemon(true);
+        subscribeThread.start();
     }
 
     public void close() {
@@ -73,5 +99,4 @@ public abstract class RedisDatabase {
     }
 
     public abstract void onMessage(String channel, String message);
-
 }

@@ -310,9 +310,9 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>io.lettuce</groupId>
-            <artifactId>lettuce-core</artifactId>
-            <version>6.6.0.RELEASE</version>
+            <groupId>redis.clients</groupId>
+            <artifactId>jedis</artifactId>
+            <version>7.3.0</version>
             <scope>provided</scope>
         </dependency>
 
