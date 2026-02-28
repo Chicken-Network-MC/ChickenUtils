@@ -61,6 +61,5 @@ public class NPCManager {
         ChickenUtils.getFoliaLib()
             .getScheduler()
             .runTimerAsync(() -> npcs.values().forEach(npc -> executor.submit(npc.getUpdateTask())), tickInterval, tickInterval);
-
     }
 }
