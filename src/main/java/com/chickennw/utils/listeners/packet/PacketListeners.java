@@ -1,4 +1,4 @@
-package com.chickennw.utils.listeners;
+package com.chickennw.utils.listeners.packet;
 
 import com.chickennw.utils.ChickenUtils;
 import com.chickennw.utils.managers.NPCManager;

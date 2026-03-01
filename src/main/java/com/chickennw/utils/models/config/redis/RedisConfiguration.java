@@ -14,4 +14,5 @@ public class RedisConfiguration extends OkaeriConfig {
     private String password = "";
     private int database = 0;
     private String channel = "exampleChannel";
+    private String server = "exampleServer";
 }

@@ -1,6 +1,6 @@
 package com.chickennw.utils;
 
-import com.chickennw.utils.listeners.PacketListeners;
+import com.chickennw.utils.listeners.packet.PacketListeners;
 import com.chickennw.utils.logger.LoggerFactory;
 import com.tcoded.folialib.FoliaLib;
 import lombok.Getter;
