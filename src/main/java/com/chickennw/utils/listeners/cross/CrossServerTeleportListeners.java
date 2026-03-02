@@ -3,8 +3,6 @@ package com.chickennw.utils.listeners.cross;
 import com.chickennw.utils.ChickenUtils;
 import com.chickennw.utils.models.cross.PendingCrossLocationTeleport;
 import com.chickennw.utils.models.cross.PendingCrossPlayerTeleport;
-import com.google.common.cache.Cache;
-import com.google.common.cache.CacheBuilder;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
@@ -13,23 +11,14 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 
 import java.util.UUID;
-import java.util.concurrent.TimeUnit;
 
 public class CrossServerTeleportListeners implements Listener {
-
-    private final Cache<UUID, PendingCrossPlayerTeleport> playerTeleportRequests = CacheBuilder.newBuilder()
-        .expireAfterWrite(5, TimeUnit.SECONDS)
-        .build();
-
-    private final Cache<UUID, PendingCrossLocationTeleport> locationTeleportRequests = CacheBuilder.newBuilder()
-        .expireAfterWrite(5, TimeUnit.SECONDS)
-        .build();
 
     @EventHandler
     public void onPlayerJoinPlayerTeleport(PlayerJoinEvent event) {
         Player player = event.getPlayer();
 
-        PendingCrossPlayerTeleport request = playerTeleportRequests.getIfPresent(player.getUniqueId());
+        PendingCrossPlayerTeleport request = ChickenUtils.getPlayerTeleportRequests().getIfPresent(player.getUniqueId());
         if (request != null) {
             UUID target = request.getTarget();
             Player targetPlayer = Bukkit.getPlayer(target);
@@ -43,7 +32,7 @@ public class CrossServerTeleportListeners implements Listener {
     public void onPlayerJoinLocationTeleport(PlayerJoinEvent event) {
         Player player = event.getPlayer();
 
-        PendingCrossLocationTeleport request = locationTeleportRequests.getIfPresent(player.getUniqueId());
+        PendingCrossLocationTeleport request = ChickenUtils.getLocationTeleportRequests().getIfPresent(player.getUniqueId());
         if (request != null) {
             String world = request.getWorld();
             double x = request.getX();
@@ -58,7 +47,8 @@ public class CrossServerTeleportListeners implements Listener {
     private void teleport(Player player, Location location) {
         ChickenUtils.getFoliaLib().getScheduler().runAtEntityLater(player, (task) -> {
             player.teleportAsync(location);
-            playerTeleportRequests.invalidate(player.getUniqueId());
+            ChickenUtils.getLocationTeleportRequests().invalidate(player.getUniqueId());
+            ChickenUtils.getPlayerTeleportRequests().invalidate(player.getUniqueId());
         }, 5);
     }
 }

@@ -6,28 +6,31 @@ import com.chickennw.utils.models.config.redis.RedisConfiguration;
 import com.chickennw.utils.models.redis.RedisMessage;
 import lombok.Getter;
 import org.slf4j.Logger;
-import redis.clients.jedis.ConnectionPoolConfig;
-import redis.clients.jedis.DefaultJedisClientConfig;
-import redis.clients.jedis.JedisPubSub;
-import redis.clients.jedis.RedisClient;
-import redis.clients.jedis.RedisProtocol;
+import redis.clients.jedis.*;
 import redis.clients.jedis.builders.StandaloneClientBuilder;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 @Getter
 public abstract class RedisDatabase {
 
-    private final List<String> subscribedChannels = new ArrayList<>();
+    private final Set<String> subscribedChannels = ConcurrentHashMap.newKeySet();
+    protected final ExecutorService subscriberExecutor;
     protected final RedisClient redisClient;
-    private final RedisClient subscriberClient;
     protected final Logger logger;
-    private JedisPubSub jedisPubSub;
-    private Thread subscribeThread;
+    protected final RedisClient subscriberClient;
+    protected JedisPubSub jedisPubSub;
 
     public RedisDatabase(RedisConfiguration redisConfiguration) {
+        subscriberExecutor = Executors.newSingleThreadExecutor(r -> {
+            String name = ChickenUtils.getPlugin().getName();
+            return new Thread(r, name + "-PubSub");
+        });
         logger = LoggerFactory.getLogger();
+
         redisClient = buildClient(
             redisConfiguration.getHost(),
             redisConfiguration.getPort(),
@@ -40,12 +43,16 @@ public abstract class RedisDatabase {
             redisConfiguration.getUser(),
             redisConfiguration.getPassword()
         );
+
+        ChickenUtils.setRedisDatabase(this);
     }
 
     public RedisDatabase(String host, int port, String password, String user) {
+        subscriberExecutor = Executors.newSingleThreadExecutor(r -> new Thread(r, ChickenUtils.getPlugin() + "-PubSub"));
         logger = LoggerFactory.getLogger();
         redisClient = buildClient(host, port, user, password);
         subscriberClient = buildClient(host, port, user, password);
+        ChickenUtils.setRedisDatabase(this);
     }
 
     private static RedisClient buildClient(String host, int port, String user, String password) {
@@ -111,14 +118,27 @@ public abstract class RedisDatabase {
         };
 
         String[] channels = subscribedChannels.toArray(new String[0]);
-        String pluginName = ChickenUtils.getPlugin().getName();
-        subscribeThread = new Thread(() -> subscriberClient.subscribe(jedisPubSub, channels), pluginName + "-PubSub");
-        subscribeThread.setDaemon(true);
-        subscribeThread.start();
+        subscriberExecutor.submit(() -> {
+            while (!Thread.currentThread().isInterrupted()) {
+                try {
+                    logger.info("Subscribing to Redis channels...");
+                    subscriberClient.subscribe(jedisPubSub, channels);
+                } catch (Exception e) {
+                    logger.error("Redis subscribe crashed, retrying in 3s", e);
+                    try {
+                        Thread.sleep(3000);
+                    } catch (InterruptedException ex) {
+                        Thread.currentThread().interrupt();
+                        break;
+                    }
+                }
+            }
+        });
     }
 
     public void close() {
         unsubscribe();
+        subscriberExecutor.shutdownNow();
         redisClient.close();
         subscriberClient.close();
     }

@@ -18,6 +18,7 @@ public abstract class CrossServerRedisDatabase extends RedisDatabase {
 
     public static final String PLAYER_UPDATE_KEY = "cross-player-update";
     public static final String PLAYER_REMOVE_KEY = "cross-player-remove";
+
     private final RedisConfiguration redisConfiguration;
     private final ConcurrentHashMap<UUID, CrossServerPlayer> crossServerPlayers;
 
