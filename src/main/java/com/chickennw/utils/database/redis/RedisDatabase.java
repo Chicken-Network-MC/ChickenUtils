@@ -106,9 +106,6 @@ public abstract class RedisDatabase {
             public void onMessage(String channelName, String message) {
                 try {
                     if (!subscribedChannels.contains(channelName)) return;
-                    if (RedisDatabase.this instanceof CrossServerRedisDatabase crossServerRedisDatabase) {
-                        crossServerRedisDatabase.onCrossPlayerUpdate(message);
-                    }
 
                     RedisDatabase.this.onMessage(channelName, message);
                 } catch (Exception ex) {
