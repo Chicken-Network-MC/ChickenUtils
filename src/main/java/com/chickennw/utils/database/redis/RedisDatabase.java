@@ -19,6 +19,8 @@ public abstract class RedisDatabase {
 
     private final Set<String> subscribedChannels = ConcurrentHashMap.newKeySet();
     protected final ExecutorService subscriberExecutor;
+    protected final ExecutorService publisherMessageExecutor;
+    protected final ExecutorService subscriberMessageExecutor;
     protected final RedisClient redisClient;
     protected final Logger logger;
     protected final RedisClient subscriberClient;
@@ -26,6 +28,14 @@ public abstract class RedisDatabase {
 
     public RedisDatabase(RedisConfiguration redisConfiguration) {
         subscriberExecutor = Executors.newSingleThreadExecutor(r -> {
+            String name = ChickenUtils.getPlugin().getName();
+            return new Thread(r, name + "-PubSub");
+        });
+        publisherMessageExecutor = Executors.newSingleThreadExecutor(r -> {
+            String name = ChickenUtils.getPlugin().getName();
+            return new Thread(r, name + "-PubSub");
+        });
+        subscriberMessageExecutor = Executors.newSingleThreadExecutor(r -> {
             String name = ChickenUtils.getPlugin().getName();
             return new Thread(r, name + "-PubSub");
         });
@@ -48,7 +58,18 @@ public abstract class RedisDatabase {
     }
 
     public RedisDatabase(String host, int port, String password, String user) {
-        subscriberExecutor = Executors.newSingleThreadExecutor(r -> new Thread(r, ChickenUtils.getPlugin() + "-PubSub"));
+        subscriberExecutor = Executors.newSingleThreadExecutor(r -> {
+            String name = ChickenUtils.getPlugin().getName();
+            return new Thread(r, name + "-PubSub");
+        });
+        publisherMessageExecutor = Executors.newSingleThreadExecutor(r -> {
+            String name = ChickenUtils.getPlugin().getName();
+            return new Thread(r, name + "-PubSub");
+        });
+        subscriberMessageExecutor = Executors.newSingleThreadExecutor(r -> {
+            String name = ChickenUtils.getPlugin().getName();
+            return new Thread(r, name + "-PubSub");
+        });
         logger = LoggerFactory.getLogger();
         redisClient = buildClient(host, port, user, password);
         subscriberClient = buildClient(host, port, user, password);
@@ -77,7 +98,9 @@ public abstract class RedisDatabase {
     }
 
     public void publish(RedisMessage message) {
-        redisClient.publish(message.channel(), message.message().toString());
+        publisherMessageExecutor.submit(() -> {
+            redisClient.publish(message.channel(), message.message().toString());
+        });
     }
 
     public void subscribe(String channel) {
@@ -104,13 +127,15 @@ public abstract class RedisDatabase {
         jedisPubSub = new JedisPubSub() {
             @Override
             public void onMessage(String channelName, String message) {
-                try {
-                    if (!subscribedChannels.contains(channelName)) return;
+                subscriberMessageExecutor.submit(() -> {
+                    try {
+                        if (!subscribedChannels.contains(channelName)) return;
 
-                    RedisDatabase.this.onMessage(channelName, message);
-                } catch (Exception ex) {
-                    logger.error("Error on message: {}", ex.getMessage(), ex);
-                }
+                        RedisDatabase.this.onMessage(channelName, message);
+                    } catch (Exception ex) {
+                        logger.error("Error on message: {}", ex.getMessage(), ex);
+                    }
+                });
             }
         };
 
