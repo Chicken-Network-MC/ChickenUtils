@@ -10,37 +10,25 @@ import java.util.Map;
 @SuppressWarnings("unused")
 public class ItemStackSerializer implements JsonSerializer<ItemStack>, JsonDeserializer<ItemStack> {
 
+    private static final Gson GSON = new GsonBuilder().create();
+
     @Override
     public JsonElement serialize(ItemStack src, Type typeOfSrc, JsonSerializationContext context) {
-        Map<String, Object> serialized = src.serialize();
-
-        Gson simpleGson = new GsonBuilder().create();
-        String json = simpleGson.toJson(serialized);
-
-        return new JsonPrimitive(json);
+        return new JsonPrimitive(GSON.toJson(src.serialize()));
     }
 
     @Override
     public ItemStack deserialize(JsonElement jsonElement, Type type, JsonDeserializationContext context) throws JsonParseException {
-        String element = jsonElement.getAsString();
-
-        Gson simpleGson = new GsonBuilder().create();
-        Map<String, Object> map = simpleGson.fromJson(element, new TypeToken<Map<String, Object>>() {
-        }.getType());
-
+        Map<String, Object> map = GSON.fromJson(jsonElement.getAsString(), new TypeToken<Map<String, Object>>() {}.getType());
         return ItemStack.deserialize(map);
     }
 
     public static String toJson(ItemStack itemStack) {
-        Map<String, Object> serialized = itemStack.serialize();
-        Gson gson = new GsonBuilder().create();
-        return gson.toJson(serialized);
+        return GSON.toJson(itemStack.serialize());
     }
 
     public static ItemStack fromJson(String json) {
-        Gson gson = new GsonBuilder().create();
-        Map<String, Object> map = gson.fromJson(json, new TypeToken<Map<String, Object>>() {
-        }.getType());
+        Map<String, Object> map = GSON.fromJson(json, new TypeToken<Map<String, Object>>() {}.getType());
         return ItemStack.deserialize(map);
     }
 }
