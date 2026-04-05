@@ -187,6 +187,27 @@ public abstract class Database {
         }
     }
 
+    public CompletableFuture<Void> deleteList(List<?> objects) {
+        return CompletableFuture.runAsync(() -> deleteSyncList(objects), executor);
+    }
+
+    public void deleteSyncList(List<?> objects) {
+        try (Session session = sessionFactory.openSession()) {
+            Transaction tx = session.beginTransaction();
+
+            try {
+                for (Object object : objects) {
+                    session.remove(object);
+                }
+
+                tx.commit();
+            } catch (Exception ex) {
+                tx.rollback();
+                throw new RuntimeException("An error appeared on deleting spawners sync", ex);
+            }
+        }
+    }
+
     public CompletableFuture<Void> delete(Object object) {
         return CompletableFuture.runAsync(() -> deleteSync(object), executor);
     }
