@@ -1,6 +1,7 @@
 package com.chickennw.utils.models.hooks.impl.protection;
 
 import com.bgsoftware.superiorskyblock.api.SuperiorSkyblockAPI;
+import com.bgsoftware.superiorskyblock.api.events.IslandCreateEvent;
 import com.bgsoftware.superiorskyblock.api.events.IslandDisbandEvent;
 import com.bgsoftware.superiorskyblock.api.events.IslandKickEvent;
 import com.bgsoftware.superiorskyblock.api.events.IslandQuitEvent;
@@ -8,6 +9,7 @@ import com.bgsoftware.superiorskyblock.api.island.Island;
 import com.bgsoftware.superiorskyblock.api.world.Dimension;
 import com.bgsoftware.superiorskyblock.api.wrappers.SuperiorPlayer;
 import com.chickennw.utils.ChickenUtils;
+import com.chickennw.utils.events.WrappedIslandCreateEvent;
 import com.chickennw.utils.events.WrappedIslandDisbandEvent;
 import com.chickennw.utils.events.WrappedIslandKickEvent;
 import com.chickennw.utils.events.WrappedIslandLeaveEvent;
@@ -117,6 +119,15 @@ public class SuperiorHook extends AbstractPluginHook implements ProtectionHook, 
     public boolean isInside(Location islandLocation, Location targetLocation) {
         Island island = SuperiorSkyblockAPI.getIslandAt(islandLocation);
         return island.isInside(targetLocation);
+    }
+
+    @EventHandler
+    public void onIslandCreate(IslandCreateEvent event) {
+        Island island = event.getIsland();
+        Location center = island.getCenter(Dimension.getByName(World.Environment.NORMAL.name()));
+
+        WrappedIslandCreateEvent wrappedEvent = new WrappedIslandCreateEvent(island.getUniqueId(), center, island.getSchematicName());
+        Bukkit.getServer().getPluginManager().callEvent(wrappedEvent);
     }
 
     @EventHandler

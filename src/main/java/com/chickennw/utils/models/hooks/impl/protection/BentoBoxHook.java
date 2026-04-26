@@ -1,6 +1,7 @@
 package com.chickennw.utils.models.hooks.impl.protection;
 
 import com.chickennw.utils.ChickenUtils;
+import com.chickennw.utils.events.WrappedIslandCreateEvent;
 import com.chickennw.utils.events.WrappedIslandDisbandEvent;
 import com.chickennw.utils.events.WrappedIslandKickEvent;
 import com.chickennw.utils.models.hooks.AbstractPluginHook;
@@ -8,12 +9,16 @@ import com.chickennw.utils.models.hooks.types.ProtectionHook;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
+import org.bukkit.World;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.jetbrains.annotations.Nullable;
 import world.bentobox.bentobox.BentoBox;
+import world.bentobox.bentobox.api.events.island.IslandCreateEvent;
 import world.bentobox.bentobox.api.events.island.IslandDeleteEvent;
+import world.bentobox.bentobox.api.events.island.IslandResetEvent;
 import world.bentobox.bentobox.api.events.team.TeamKickEvent;
+import world.bentobox.bentobox.blueprints.dataobjects.BlueprintBundle;
 import world.bentobox.bentobox.database.objects.Island;
 import world.bentobox.bentobox.database.objects.Players;
 
@@ -78,7 +83,7 @@ public class BentoBoxHook extends AbstractPluginHook implements ProtectionHook, 
     public boolean canPlayerBuild(Location loc, OfflinePlayer offlinePlayer) {
         Optional<Island> island = BentoBox.getInstance().getIslands().getIslandAt(loc);
         return island.filter(value -> value.getMemberSet().contains(offlinePlayer.getUniqueId())
-                || value.getOwner().equals(offlinePlayer.getUniqueId())).isPresent();
+            || value.getOwner().equals(offlinePlayer.getUniqueId())).isPresent();
     }
 
     @Override
@@ -96,9 +101,9 @@ public class BentoBoxHook extends AbstractPluginHook implements ProtectionHook, 
     @Override
     public Location getCenter(Location loc) {
         Island island = BentoBox.getInstance()
-                .getIslandsManager()
-                .getIslandAt(loc)
-                .orElse(null);
+            .getIslandsManager()
+            .getIslandAt(loc)
+            .orElse(null);
 
         return island != null ? island.getCenter() : null;
     }
@@ -106,11 +111,46 @@ public class BentoBoxHook extends AbstractPluginHook implements ProtectionHook, 
     @Override
     public boolean isInside(Location islandLocation, Location targetLocation) {
         Island island = BentoBox.getInstance()
-                .getIslandsManager()
-                .getIslandAt(islandLocation)
-                .orElse(null);
+            .getIslandsManager()
+            .getIslandAt(islandLocation)
+            .orElse(null);
 
         return island != null && island.inIslandSpace(targetLocation);
+    }
+
+    @EventHandler
+    public void onIslandCreate(IslandCreateEvent e) {
+        Island island = e.getIsland();
+        BlueprintBundle blueprintBundle = e.getBlueprintBundle();
+        String schematic = blueprintBundle.getBlueprint(World.Environment.NORMAL);
+
+        WrappedIslandCreateEvent wrappedEvent = new WrappedIslandCreateEvent(
+            parseUUID(island.getUniqueId()),
+            island.getCenter(),
+            schematic
+        );
+        Bukkit.getServer().getPluginManager().callEvent(wrappedEvent);
+    }
+
+    @EventHandler
+    public void onIslandReset(IslandResetEvent e) {
+        Island oldIsland = e.getOldIsland();
+        if (oldIsland != null) {
+            List<UUID> oldMembers = new ArrayList<>(oldIsland.getMemberSet());
+            WrappedIslandDisbandEvent disbandEvent = new WrappedIslandDisbandEvent(parseUUID(oldIsland.getUniqueId()), oldMembers);
+            Bukkit.getServer().getPluginManager().callEvent(disbandEvent);
+        }
+
+        Island island = e.getIsland();
+        BlueprintBundle blueprintBundle = e.getBlueprintBundle();
+        String schematic = blueprintBundle.getBlueprint(World.Environment.NORMAL);
+
+        WrappedIslandCreateEvent wrappedEvent = new WrappedIslandCreateEvent(
+            parseUUID(island.getUniqueId()),
+            island.getCenter(),
+            schematic
+        );
+        Bukkit.getServer().getPluginManager().callEvent(wrappedEvent);
     }
 
     @EventHandler
