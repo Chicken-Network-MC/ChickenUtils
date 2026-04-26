@@ -56,6 +56,7 @@ public class HooksFile extends OkaeriConfig {
 
         private boolean vanilla = true;
         private boolean wildStacker = true;
+        private boolean roseStacker = true;
     }
 
     @Getter

@@ -6,7 +6,7 @@
 
     <groupId>com.chickennw</groupId>
     <artifactId>chicken-utils</artifactId>
-    <version>1.5.2</version>
+    <version>1.6.0</version>
     <packaging>jar</packaging>
 
     <name>ChickenUtils</name>
@@ -156,6 +156,10 @@
         <repository>
             <id>bg-repo</id>
             <url>https://repo.bg-software.com/repository/api/</url>
+        </repository>
+        <repository>
+            <id>rosewood-repo</id>
+            <url>https://repo.rosewooddev.io/repository/public/</url>
         </repository>
         <repository>
             <id>iridiumdevelopment</id>
@@ -498,6 +502,12 @@
             <groupId>com.bgsoftware</groupId>
             <artifactId>WildStackerAPI</artifactId>
             <version>2025.2</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>dev.rosewood</groupId>
+            <artifactId>rosestacker</artifactId>
+            <version>1.5.39</version>
             <scope>provided</scope>
         </dependency>
 
