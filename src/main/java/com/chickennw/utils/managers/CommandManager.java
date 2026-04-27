@@ -71,11 +71,13 @@ public class CommandManager {
         commands.add(command);
     }
 
+    public void unregisterCommand(BaseCommand command) {
+        logger.info("Unregistering command: {}", command.getClass().getSimpleName());
+        manager.unregisterCommand(command);
+    }
+
     public void unregisterCommands() {
-        commands.forEach(c -> {
-            logger.info("Unregistering command: {}", c.getClass().getSimpleName());
-            manager.unregisterCommand(c);
-        });
+        commands.forEach(this::unregisterCommand);
     }
 
     @NotNull
