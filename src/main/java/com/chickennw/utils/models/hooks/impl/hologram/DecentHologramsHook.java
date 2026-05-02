@@ -2,6 +2,7 @@ package com.chickennw.utils.models.hooks.impl.hologram;
 
 import com.chickennw.utils.managers.CommandManager;
 import com.chickennw.utils.models.hooks.AbstractPluginHook;
+import com.chickennw.utils.models.hooks.impl.hologram.type.HologramHookType;
 import com.chickennw.utils.models.hooks.types.HologramHook;
 import eu.decentsoftware.holograms.api.DHAPI;
 import eu.decentsoftware.holograms.api.holograms.Hologram;
@@ -41,7 +42,7 @@ public class DecentHologramsHook extends AbstractPluginHook implements HologramH
             oldHologram.delete();
         }
 
-        lines = parseColors(lines);
+        lines = parseColors(lines, HologramHookType.DECENT_HOLOGRAMS);
         Hologram hologram = DHAPI.createHologram(locString, location, lines);
 
         FileConfiguration config = CommandManager.getInstance().getConfig();
@@ -64,7 +65,7 @@ public class DecentHologramsHook extends AbstractPluginHook implements HologramH
             create(location, lines);
         } else {
             HologramPage page = hologram.getPage(0);
-            lines = parseColors(lines);
+            lines = parseColors(lines, HologramHookType.DECENT_HOLOGRAMS);
 
             if (lines.size() == page.getLines().size()) {
                 int i = 0;

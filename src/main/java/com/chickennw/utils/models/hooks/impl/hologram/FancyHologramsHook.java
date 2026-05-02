@@ -1,13 +1,14 @@
 package com.chickennw.utils.models.hooks.impl.hologram;
 
-import com.chickennw.utils.ChickenUtils;
 import com.chickennw.utils.managers.CommandManager;
 import com.chickennw.utils.models.hooks.AbstractPluginHook;
+import com.chickennw.utils.models.hooks.impl.hologram.type.HologramHookType;
 import com.chickennw.utils.models.hooks.types.HologramHook;
 import de.oliver.fancyholograms.api.FancyHologramsPlugin;
 import de.oliver.fancyholograms.api.HologramManager;
 import de.oliver.fancyholograms.api.data.TextHologramData;
 import de.oliver.fancyholograms.api.hologram.Hologram;
+import lombok.extern.slf4j.Slf4j;
 import org.bukkit.Color;
 import org.bukkit.Location;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -17,6 +18,7 @@ import org.joml.Vector3f;
 import java.util.List;
 import java.util.Optional;
 
+@Slf4j
 @SuppressWarnings("unused")
 public class FancyHologramsHook extends AbstractPluginHook implements HologramHook {
 
@@ -68,7 +70,7 @@ public class FancyHologramsHook extends AbstractPluginHook implements HologramHo
         hologramData.setTranslation(new Vector3f(0, 0, 0));
         hologramData.setVisibilityDistance(range);
 
-        lines = parseColors(lines);
+        lines = parseColors(lines, HologramHookType.FANCY_HOLOGRAMS);
         hologramData.setText(lines);
 
         Hologram hologram = manager.create(hologramData);
@@ -90,7 +92,7 @@ public class FancyHologramsHook extends AbstractPluginHook implements HologramHo
         } else {
             TextHologramData hologramData = (TextHologramData) hologram.getData();
             if (hologramData.getText().size() == lines.size()) {
-                lines = parseColors(lines);
+                lines = parseColors(lines, HologramHookType.FANCY_HOLOGRAMS);
 
                 hologramData.setText(lines);
                 hologram.queueUpdate();

@@ -1,6 +1,7 @@
 package com.chickennw.utils.models.hooks.types;
 
 import com.chickennw.utils.models.hooks.PluginHook;
+import com.chickennw.utils.models.hooks.impl.hologram.type.HologramHookType;
 import com.chickennw.utils.utils.ChatUtils;
 import org.bukkit.Location;
 
@@ -19,11 +20,15 @@ public interface HologramHook extends PluginHook {
         return location.getWorld().getName() + "_" + location.getBlockX() + "_" + location.getBlockY() + "_" + location.getBlockZ();
     }
 
-    default List<String> parseColors(List<String> lines) {
+    default List<String> parseColors(List<String> lines, HologramHookType hologramHookType) {
         try {
-            List<String> converted = new ArrayList<>();
-            lines.forEach(line -> converted.add(ChatUtils.colorizeLegacy(line)));
-            return converted;
+            if (hologramHookType == HologramHookType.FANCY_HOLOGRAMS) {
+                return lines;
+            } else {
+                List<String> converted = new ArrayList<>();
+                lines.forEach(line -> converted.add(ChatUtils.colorizeLegacy(line)));
+                return converted;
+            }
         } catch (Exception ignored) {
             List<String> converted = new ArrayList<>();
             lines.forEach(line -> converted.add(line.replace("&", "§")));

@@ -3,6 +3,7 @@ package com.chickennw.utils.models.hooks.impl.hologram;
 import com.Zrips.CMI.CMI;
 import com.Zrips.CMI.Modules.Holograms.CMIHologram;
 import com.chickennw.utils.models.hooks.AbstractPluginHook;
+import com.chickennw.utils.models.hooks.impl.hologram.type.HologramHookType;
 import com.chickennw.utils.models.hooks.types.HologramHook;
 import org.bukkit.Location;
 
@@ -36,7 +37,7 @@ public class CMIHologramHook extends AbstractPluginHook implements HologramHook 
         CMIHologram oldHologram = CMI.getInstance().getHologramManager().getByName(locString);
         if (oldHologram != null) oldHologram.remove();
 
-        lines = parseColors(lines);
+        lines = parseColors(lines, HologramHookType.CMI_HOLOGRAMS);
 
         CMIHologram newHologram = new CMIHologram(locString, location);
         newHologram.setLines(lines);
@@ -61,7 +62,7 @@ public class CMIHologramHook extends AbstractPluginHook implements HologramHook 
         CMIHologram hologram = CMI.getInstance().getHologramManager().getByName(locString);
 
         if (hologram != null) {
-            lines = parseColors(lines);
+            lines = parseColors(lines, HologramHookType.CMI_HOLOGRAMS);
 
             hologram.setLines(lines);
             hologram.update();
