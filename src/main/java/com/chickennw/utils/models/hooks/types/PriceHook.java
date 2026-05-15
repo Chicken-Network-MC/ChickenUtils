@@ -6,7 +6,21 @@ import org.bukkit.inventory.ItemStack;
 
 public interface PriceHook extends PluginHook {
 
-    double calculatePrice(ItemStack item, Player player);
+    double calculateSellPrice(ItemStack item, Player player);
 
-    double calculatePrice(ItemStack item);
+    double calculateSellPrice(ItemStack item);
+
+    double calculateBuyPrice(ItemStack item, Player player);
+
+    double calculateBuyPrice(ItemStack item);
+
+    @Deprecated
+    default double calculatePrice(ItemStack item, Player player) {
+        return calculateSellPrice(item, player);
+    }
+
+    @Deprecated
+    default double calculatePrice(ItemStack item) {
+        return calculateSellPrice(item);
+    }
 }

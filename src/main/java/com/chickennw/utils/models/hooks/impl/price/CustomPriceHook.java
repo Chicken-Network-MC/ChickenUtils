@@ -38,7 +38,7 @@ public class CustomPriceHook extends AbstractPluginHook implements PriceHook {
     }
 
     @Override
-    public double calculatePrice(ItemStack item) {
+    public double calculateSellPrice(ItemStack item) {
         Material material = item.getType();
         CustomWorthFile customWorthFile = ConfigUtils.get(CustomWorthFile.class);
         Double price = customWorthFile.getWorths().get(material);
@@ -46,7 +46,17 @@ public class CustomPriceHook extends AbstractPluginHook implements PriceHook {
     }
 
     @Override
-    public double calculatePrice(ItemStack item, Player player) {
-        return calculatePrice(item);
+    public double calculateSellPrice(ItemStack item, Player player) {
+        return calculateSellPrice(item);
+    }
+
+    @Override
+    public double calculateBuyPrice(ItemStack item) {
+        return calculateSellPrice(item);
+    }
+
+    @Override
+    public double calculateBuyPrice(ItemStack item, Player player) {
+        return calculateSellPrice(item);
     }
 }

@@ -31,7 +31,7 @@ public class EssentialsPriceHook extends AbstractPluginHook implements PriceHook
         return hooksFile.getPriceHooks().isEssentials();
     }
 
-    public double calculatePrice(ItemStack item) {
+    public double calculateSellPrice(ItemStack item) {
         Essentials essentials = (Essentials) Bukkit.getPluginManager().getPlugin("Essentials");
         BigDecimal price = essentials.getWorth().getPrice(essentials, item);
         if (price == null) {
@@ -42,7 +42,17 @@ public class EssentialsPriceHook extends AbstractPluginHook implements PriceHook
     }
 
     @Override
-    public double calculatePrice(ItemStack item, Player player) {
-        return calculatePrice(item);
+    public double calculateSellPrice(ItemStack item, Player player) {
+        return calculateSellPrice(item);
+    }
+
+    @Override
+    public double calculateBuyPrice(ItemStack item) {
+        return calculateSellPrice(item);
+    }
+
+    @Override
+    public double calculateBuyPrice(ItemStack item, Player player) {
+        return calculateSellPrice(item);
     }
 }

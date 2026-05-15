@@ -29,12 +29,22 @@ public class RoyaleEconomyHook extends AbstractPluginHook implements PriceHook {
     }
 
     @Override
-    public double calculatePrice(ItemStack item) {
+    public double calculateSellPrice(ItemStack item) {
         return RoyaleEconomy.apiHandler.shops.getPriceOfItem(item);
     }
 
     @Override
-    public double calculatePrice(ItemStack item, Player player) {
+    public double calculateSellPrice(ItemStack item, Player player) {
+        return RoyaleEconomy.apiHandler.shops.getPriceOfItem(item);
+    }
+
+    @Override
+    public double calculateBuyPrice(ItemStack item) {
+        return RoyaleEconomy.apiHandler.shops.getPriceOfItem(item);
+    }
+
+    @Override
+    public double calculateBuyPrice(ItemStack item, Player player) {
         return RoyaleEconomy.apiHandler.shops.getPriceOfItem(item);
     }
 }

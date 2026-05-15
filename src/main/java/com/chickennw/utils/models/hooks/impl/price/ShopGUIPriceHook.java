@@ -29,12 +29,22 @@ public class ShopGUIPriceHook extends AbstractPluginHook implements PriceHook {
     }
 
     @Override
-    public double calculatePrice(ItemStack item) {
+    public double calculateSellPrice(ItemStack item) {
         return ShopGuiPlusApi.getItemStackPriceSell(item);
     }
 
     @Override
-    public double calculatePrice(ItemStack item, Player player) {
+    public double calculateSellPrice(ItemStack item, Player player) {
         return ShopGuiPlusApi.getItemStackPriceSell(player, item);
+    }
+
+    @Override
+    public double calculateBuyPrice(ItemStack item) {
+        return ShopGuiPlusApi.getItemStackPriceBuy(item);
+    }
+
+    @Override
+    public double calculateBuyPrice(ItemStack item, Player player) {
+        return ShopGuiPlusApi.getItemStackPriceBuy(player, item);
     }
 }

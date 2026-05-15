@@ -3,6 +3,7 @@ package com.chickennw.utils.models.hooks.impl.price;
 import com.chickennw.utils.models.hooks.AbstractPluginHook;
 import com.chickennw.utils.models.hooks.types.PriceHook;
 import me.gypopo.economyshopgui.api.EconomyShopGUIHook;
+import me.gypopo.economyshopgui.api.objects.BuyPrice;
 import me.gypopo.economyshopgui.api.objects.SellPrice;
 import me.gypopo.economyshopgui.objects.ShopItem;
 import me.gypopo.economyshopgui.util.EconomyType;
@@ -35,7 +36,7 @@ public class EconomyShopGUI extends AbstractPluginHook implements PriceHook {
     }
 
     @Override
-    public double calculatePrice(ItemStack item) {
+    public double calculateSellPrice(ItemStack item) {
         ShopItem shopItem = EconomyShopGUIHook.getShopItem(item);
 
         if (shopItem != null) {
@@ -49,8 +50,28 @@ public class EconomyShopGUI extends AbstractPluginHook implements PriceHook {
     }
 
     @Override
-    public double calculatePrice(ItemStack item, Player player) {
+    public double calculateSellPrice(ItemStack item, Player player) {
         Optional<SellPrice> optSellPrice = EconomyShopGUIHook.getSellPrice(player, item);
         return optSellPrice.map(sellPrice -> sellPrice.getPrice(EconomyType.getFromString("VAULT"))).orElse((double) 0);
+    }
+
+    @Override
+    public double calculateBuyPrice(ItemStack item) {
+        ShopItem shopItem = EconomyShopGUIHook.getShopItem(item);
+
+        if (shopItem != null) {
+            Double price = EconomyShopGUIHook.getItemBuyPrice(shopItem, item);
+            if (price != null) {
+                return price;
+            }
+        }
+
+        return 0;
+    }
+
+    @Override
+    public double calculateBuyPrice(ItemStack item, Player player) {
+        Optional<BuyPrice> optBuyPrice = EconomyShopGUIHook.getBuyPrice(player, item);
+        return optBuyPrice.map(buyPrice -> buyPrice.getPrice(EconomyType.getFromString("VAULT"))).orElse((double) 0);
     }
 }

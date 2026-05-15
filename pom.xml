@@ -6,7 +6,7 @@
 
     <groupId>com.chickennw</groupId>
     <artifactId>chicken-utils</artifactId>
-    <version>1.6.2</version>
+    <version>1.6.4</version>
     <packaging>jar</packaging>
 
     <name>ChickenUtils</name>
@@ -524,13 +524,6 @@
             <artifactId>packetevents-spigot</artifactId>
             <version>2.11.2</version>
             <scope>provided</scope>
-        </dependency>
-
-        <!-- Json -->
-        <dependency>
-            <groupId>org.json</groupId>
-            <artifactId>json</artifactId>
-            <version>20250107</version>
         </dependency>
 
         <!-- SkinsRestorer -->

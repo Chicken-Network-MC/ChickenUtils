@@ -29,12 +29,22 @@ public class DonutWorthPriceHook extends AbstractPluginHook implements PriceHook
     }
 
     @Override
-    public double calculatePrice(ItemStack item) {
+    public double calculateSellPrice(ItemStack item) {
         return Prices.getPrice(item);
     }
 
     @Override
-    public double calculatePrice(ItemStack item, Player player) {
+    public double calculateSellPrice(ItemStack item, Player player) {
+        return Prices.getPriceWithMultiplier(player, item);
+    }
+
+    @Override
+    public double calculateBuyPrice(ItemStack item) {
+        return Prices.getPrice(item);
+    }
+
+    @Override
+    public double calculateBuyPrice(ItemStack item, Player player) {
         return Prices.getPriceWithMultiplier(player, item);
     }
 }

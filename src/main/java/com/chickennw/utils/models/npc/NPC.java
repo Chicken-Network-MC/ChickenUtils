@@ -47,6 +47,7 @@ public abstract class NPC {
     protected float pitch;
     protected Consumer<Player> onClickAction;
     protected boolean despawned;
+    protected boolean lookAtPlayer;
 
     protected Location location;
 
@@ -92,8 +93,12 @@ public abstract class NPC {
                     continue;
                 }
 
+                if (!visible) continue;
+
                 if (!seeingPlayers.contains(player.getUniqueId())) spawn(player);
                 seeingPlayers.put(player.getUniqueId(), player.getUniqueId());
+
+                if (lookAtPlayer) lookAt(player);
             }
         };
     }
@@ -140,6 +145,30 @@ public abstract class NPC {
 
         WrapperPlayServerEntityRotation packet = new WrapperPlayServerEntityRotation(entityId, yaw, pitch, false);
         queuePacketSeeing(packet);
+
+        WrapperPlayServerEntityHeadLook headLookPacket = new WrapperPlayServerEntityHeadLook(entityId, yaw);
+        queuePacketSeeing(headLookPacket);
+    }
+
+    public void lookAt(Player player) {
+        if (!visible || despawned) return;
+
+        Location npcLocation = getLocation();
+        Location playerLocation = player.getEyeLocation();
+
+        double dx = playerLocation.getX() - npcLocation.getX();
+        double dy = playerLocation.getY() - (npcLocation.getY() + 1.62);
+        double dz = playerLocation.getZ() - npcLocation.getZ();
+
+        double horizontalDist = Math.sqrt(dx * dx + dz * dz);
+        float targetYaw = (float) (Math.toDegrees(Math.atan2(dz, dx)) - 90.0f);
+        float targetPitch = (float) -Math.toDegrees(Math.atan2(dy, horizontalDist));
+
+        WrapperPlayServerEntityRotation rotationPacket = new WrapperPlayServerEntityRotation(entityId, targetYaw, targetPitch, false);
+        WrapperPlayServerEntityHeadLook headLookPacket = new WrapperPlayServerEntityHeadLook(entityId, targetYaw);
+
+        queuePacket(rotationPacket, player);
+        queuePacket(headLookPacket, player);
     }
 
     public void despawn() {
