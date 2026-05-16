@@ -46,15 +46,18 @@ public class RoseStackerEntityCountHook extends AbstractPluginHook implements En
     }
 
     @Override
-    public void removeEntity(UUID requester, LivingEntity entity) {
+    public void removeEntity(UUID requester, LivingEntity entity, int stack) {
         if (roseStackerAPI != null && roseStackerAPI.isEntityStacked(entity)) {
             StackedEntity stackedEntity = roseStackerAPI.getStackedEntity(entity);
             if (stackedEntity != null) {
                 roseStackerAPI.removeEntityStack(stackedEntity);
             }
         }
-        FixedMetadataValue metadataValue = new FixedMetadataValue(ChickenUtils.getPlugin(), requester);
-        entity.setMetadata(VanillaEntityCountHook.KILLED_BY_VANILLA_HOOK_KEY, metadataValue);
+
+        FixedMetadataValue minionMetadata = new FixedMetadataValue(ChickenUtils.getPlugin(), requester);
+        FixedMetadataValue amountMetadata = new FixedMetadataValue(ChickenUtils.getPlugin(), stack);
+        entity.setMetadata(VanillaEntityCountHook.KILLED_BY_VANILLA_HOOK_MINION_KEY, minionMetadata);
+        entity.setMetadata(VanillaEntityCountHook.KILLED_BY_VANILLA_HOOK_AMOUNT_KEY, amountMetadata);
         entity.damage(Integer.MAX_VALUE);
     }
 }

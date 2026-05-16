@@ -38,13 +38,15 @@ public class WildStackerEntityCountHook extends AbstractPluginHook implements En
     }
 
     @Override
-    public void removeEntity(UUID requester, LivingEntity entity) {
+    public void removeEntity(UUID requester, LivingEntity entity, int stack) {
         StackedEntity stackedEntity = WildStackerAPI.getStackedEntity(entity);
         if (stackedEntity != null) {
             stackedEntity.remove();
         } else {
-            FixedMetadataValue metadataValue = new FixedMetadataValue(ChickenUtils.getPlugin(), requester);
-            entity.setMetadata(VanillaEntityCountHook.KILLED_BY_VANILLA_HOOK_KEY, metadataValue);
+            FixedMetadataValue minionMetadata = new FixedMetadataValue(ChickenUtils.getPlugin(), requester);
+            FixedMetadataValue amountMetadata = new FixedMetadataValue(ChickenUtils.getPlugin(), stack);
+            entity.setMetadata(VanillaEntityCountHook.KILLED_BY_VANILLA_HOOK_MINION_KEY, minionMetadata);
+            entity.setMetadata(VanillaEntityCountHook.KILLED_BY_VANILLA_HOOK_AMOUNT_KEY, amountMetadata);
             entity.damage(Integer.MAX_VALUE);
         }
     }
