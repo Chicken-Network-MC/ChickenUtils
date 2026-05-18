@@ -24,6 +24,8 @@ import java.util.concurrent.TimeUnit;
 public class CrossTeleportManager {
 
     public static final String TELEPORT_SERVER_KEY = "cross-teleport-server";
+    public static final String TELEPORT_LOCATION_KEY = "cross-server-teleport-location";
+    public static final String TELEPORT_PLAYER_KEY = "cross-server-teleport-player";
 
     private final Cache<UUID, PendingCrossPlayerTeleport> playerTeleportRequests = CacheBuilder.newBuilder()
         .expireAfterWrite(5, TimeUnit.SECONDS)
@@ -46,6 +48,26 @@ public class CrossTeleportManager {
         plugin.getServer().getPluginManager().registerEvents(new CrossServerTeleportListeners(this), plugin);
     }
 
+    public void checkTeleportLocationOnlinePlayer(UUID uuid, PendingCrossLocationTeleport location) {
+        Player player = Bukkit.getPlayer(uuid);
+        if (player == null) {
+            locationTeleportRequests.put(uuid, location);
+            return;
+        }
+
+        teleportLocation(location);
+    }
+
+    public void checkTeleportPlayerOnlinePlayer(UUID uuid, PendingCrossPlayerTeleport location) {
+        Player player = Bukkit.getPlayer(uuid);
+        if (player == null) {
+            playerTeleportRequests.put(uuid, location);
+            return;
+        }
+
+        teleportToPlayer(location);
+    }
+
     public void teleportLocation(PendingCrossLocationTeleport location) {
         if (location.server().equalsIgnoreCase(serverName)) {
             Location bukkitLocation = new Location(Bukkit.getWorld(location.world()), location.x(), location.y(), location.z(),
@@ -59,7 +81,7 @@ public class CrossTeleportManager {
             locationTeleportRequests.put(location.player(), location);
 
             JSONObject json = new JSONObject();
-            json.put("method", "cross-server-teleport-location");
+            json.put("method", CrossTeleportManager.TELEPORT_LOCATION_KEY);
             json.put("player", location.player().toString());
             json.put("world", location.world());
             json.put("targetServer", location.server());
@@ -88,7 +110,7 @@ public class CrossTeleportManager {
         }
 
         JSONObject json = new JSONObject();
-        json.put("method", "cross-server-teleport-player");
+        json.put("method", CrossTeleportManager.TELEPORT_PLAYER_KEY);
         json.put("player", pendingCrossPlayerTeleport.player().toString());
         json.put("targetServer", pendingCrossPlayerTeleport.server());
         json.put("target", pendingCrossPlayerTeleport.target().toString());

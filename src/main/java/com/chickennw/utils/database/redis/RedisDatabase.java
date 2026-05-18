@@ -1,15 +1,20 @@
 package com.chickennw.utils.database.redis;
 
 import com.chickennw.utils.ChickenUtils;
+import com.chickennw.utils.cross.CrossTeleportManager;
+import com.chickennw.utils.cross.PendingCrossLocationTeleport;
+import com.chickennw.utils.cross.PendingCrossPlayerTeleport;
 import com.chickennw.utils.logger.LoggerFactory;
 import com.chickennw.utils.models.config.redis.RedisConfiguration;
 import com.chickennw.utils.models.redis.RedisMessage;
 import lombok.Getter;
+import org.json.JSONObject;
 import org.slf4j.Logger;
 import redis.clients.jedis.*;
 import redis.clients.jedis.builders.StandaloneClientBuilder;
 
 import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -30,6 +35,7 @@ public abstract class RedisDatabase {
     protected final RedisClient redisClient;
     protected final Logger logger;
     protected final RedisClient subscriberClient;
+    protected final CrossTeleportManager crossTeleportManager;
     protected volatile JedisPubSub jedisPubSub;
 
     public RedisDatabase(RedisConfiguration redisConfiguration) {
@@ -61,25 +67,7 @@ public abstract class RedisDatabase {
         );
 
         ChickenUtils.setRedisDatabase(this);
-    }
-
-    public RedisDatabase(String host, int port, String password, String user) {
-        subscriberExecutor = Executors.newSingleThreadExecutor(r -> {
-            String name = ChickenUtils.getPlugin().getName();
-            return new Thread(r, name + "-PubSub");
-        });
-        publisherMessageExecutor = Executors.newSingleThreadExecutor(r -> {
-            String name = ChickenUtils.getPlugin().getName();
-            return new Thread(r, name + "-PubSub");
-        });
-        subscriberMessageExecutor = Executors.newSingleThreadExecutor(r -> {
-            String name = ChickenUtils.getPlugin().getName();
-            return new Thread(r, name + "-PubSub");
-        });
-        logger = LoggerFactory.getLogger();
-        redisClient = buildClient(host, port, user, password);
-        subscriberClient = buildClient(host, port, user, password);
-        ChickenUtils.setRedisDatabase(this);
+        crossTeleportManager = new CrossTeleportManager(redisConfiguration.getServer(), this, redisConfiguration);
     }
 
     private static RedisClient buildClient(String host, int port, String user, String password) {
@@ -156,6 +144,37 @@ public abstract class RedisDatabase {
                         subscriberMessageExecutor.submit(() -> {
                             try {
                                 if (!subscribedChannels.contains(channelName)) return;
+
+                                JSONObject json = new JSONObject(message);
+                                String method = json.getString("method");
+                                if (method.equals(CrossTeleportManager.TELEPORT_LOCATION_KEY)) {
+                                    UUID uuid = UUID.fromString(json.getString("player"));
+                                    String targetServer = json.getString("targetServer");
+                                    if (!targetServer.equalsIgnoreCase(crossTeleportManager.getServerName())) return;
+
+                                    String world = json.getString("world");
+                                    double x = json.getDouble("x");
+                                    double y = json.getDouble("y");
+                                    double z = json.getDouble("z");
+                                    float yaw = (float) json.getDouble("yaw");
+                                    float pitch = (float) json.getDouble("pitch");
+
+                                    PendingCrossLocationTeleport requsest = new PendingCrossLocationTeleport(uuid, targetServer, world, x, y, z,
+                                        yaw, pitch, System.currentTimeMillis());
+
+                                    crossTeleportManager.checkTeleportLocationOnlinePlayer(uuid, requsest);
+                                    return;
+                                } else if (method.equals(CrossTeleportManager.TELEPORT_PLAYER_KEY)) {
+                                    UUID uuid = UUID.fromString(json.getString("player"));
+                                    String targetServer = json.getString("targetServer");
+                                    if (!targetServer.equalsIgnoreCase(crossTeleportManager.getServerName())) return;
+
+                                    UUID target = UUID.fromString(json.getString("target"));
+
+                                    PendingCrossPlayerTeleport requsest = new PendingCrossPlayerTeleport(uuid, target, targetServer, System.currentTimeMillis());
+                                    crossTeleportManager.checkTeleportPlayerOnlinePlayer(uuid, requsest);
+                                    return;
+                                }
 
                                 RedisDatabase.this.onMessage(channelName, message);
                             } catch (Exception ex) {
