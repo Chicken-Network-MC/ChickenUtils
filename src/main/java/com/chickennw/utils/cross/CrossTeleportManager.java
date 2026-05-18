@@ -2,6 +2,7 @@ package com.chickennw.utils.cross;
 
 import com.chickennw.utils.ChickenUtils;
 import com.chickennw.utils.database.redis.RedisDatabase;
+import com.chickennw.utils.listeners.bukkit.CrossServerTeleportListeners;
 import com.chickennw.utils.models.config.redis.RedisConfiguration;
 import com.chickennw.utils.models.redis.RedisMessage;
 import com.google.common.cache.Cache;
@@ -9,10 +10,10 @@ import com.google.common.cache.CacheBuilder;
 import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
+import org.bukkit.plugin.java.JavaPlugin;
 import org.json.JSONObject;
 
 import java.util.UUID;
@@ -20,7 +21,6 @@ import java.util.concurrent.TimeUnit;
 
 @Getter
 @SuppressWarnings("unused")
-@RequiredArgsConstructor
 public class CrossTeleportManager {
 
     public static final String TELEPORT_SERVER_KEY = "cross-teleport-server";
@@ -35,6 +35,16 @@ public class CrossTeleportManager {
     private final String serverName;
     private final RedisDatabase redisDatabase;
     private final RedisConfiguration redisConfiguration;
+
+    public CrossTeleportManager(String serverName, RedisDatabase redisDatabase, RedisConfiguration redisConfiguration) {
+        this.serverName = serverName;
+        this.redisDatabase = redisDatabase;
+        this.redisConfiguration = redisConfiguration;
+
+        JavaPlugin plugin = ChickenUtils.getPlugin();
+        plugin.getServer().getMessenger().registerOutgoingPluginChannel(plugin, "BungeeCord");
+        plugin.getServer().getPluginManager().registerEvents(new CrossServerTeleportListeners(this), plugin);
+    }
 
     public void teleportLocation(PendingCrossLocationTeleport location) {
         if (location.server().equalsIgnoreCase(serverName)) {
