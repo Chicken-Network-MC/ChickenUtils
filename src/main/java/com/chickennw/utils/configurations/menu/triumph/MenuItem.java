@@ -1,4 +1,4 @@
-package com.chickennw.utils.configurations.menu;
+package com.chickennw.utils.configurations.menu.triumph;
 
 import eu.okaeri.configs.annotation.NameModifier;
 import eu.okaeri.configs.annotation.NameStrategy;

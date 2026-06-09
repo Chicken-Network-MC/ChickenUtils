@@ -1,7 +1,7 @@
 package com.chickennw.utils.managers;
 
-import com.chickennw.utils.configurations.menu.MenuItemStack;
-import com.chickennw.utils.configurations.menu.SymboledMenuItem;
+import com.chickennw.utils.configurations.menu.triumph.MenuItemStack;
+import com.chickennw.utils.configurations.menu.triumph.SymboledMenuItem;
 import com.chickennw.utils.utils.ChatUtils;
 import com.chickennw.utils.utils.ItemUtils;
 import org.bukkit.OfflinePlayer;

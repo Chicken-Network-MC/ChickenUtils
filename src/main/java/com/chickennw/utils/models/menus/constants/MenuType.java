@@ -1,4 +1,4 @@
-package com.chickennw.utils.models.menus;
+package com.chickennw.utils.models.menus.constants;
 
 public enum MenuType {
 

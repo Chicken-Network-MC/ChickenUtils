@@ -6,7 +6,7 @@
 
     <groupId>com.chickennw</groupId>
     <artifactId>chicken-utils</artifactId>
-    <version>1.7.3</version>
+    <version>1.8.0</version>
     <packaging>jar</packaging>
 
     <name>ChickenUtils</name>
@@ -184,6 +184,10 @@
             <id>mvn-wesjd-net</id>
             <url>https://mvn.wesjd.net/</url>
         </repository>
+        <repository>
+            <id>opencollab-snapshot</id>
+            <url>https://repo.opencollab.dev/main/</url>
+        </repository>
     </repositories>
 
     <dependencies>
@@ -191,7 +195,7 @@
         <dependency>
             <groupId>io.papermc.paper</groupId>
             <artifactId>paper-api</artifactId>
-            <version>1.21.8-R0.1-SNAPSHOT</version>
+            <version>1.21.11-R0.1-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
 
@@ -526,11 +530,29 @@
             <scope>provided</scope>
         </dependency>
 
-        <!-- SkinsRestorer -->
+        <!-- Other -->
         <dependency>
             <groupId>net.skinsrestorer</groupId>
             <artifactId>skinsrestorer-api</artifactId>
             <version>15.10.0</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.github.DeadSilenceIV</groupId>
+            <artifactId>AdvancedChestsAPI</artifactId>
+            <version>3.0-BETA</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.geysermc.geyser</groupId>
+            <artifactId>api</artifactId>
+            <version>2.10.0-SNAPSHOT</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.geysermc.floodgate</groupId>
+            <artifactId>api</artifactId>
+            <version>2.2.5-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>

@@ -1,7 +1,7 @@
-package com.chickennw.utils.models.config.menu;
+package com.chickennw.utils.models.config.menu.triumph;
 
-import com.chickennw.utils.configurations.menu.MenuFiller;
-import com.chickennw.utils.configurations.menu.SymboledMenuItem;
+import com.chickennw.utils.configurations.menu.triumph.MenuFiller;
+import com.chickennw.utils.configurations.menu.triumph.SymboledMenuItem;
 
 import java.util.List;
 import java.util.Map;
