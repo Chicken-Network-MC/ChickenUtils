@@ -139,7 +139,7 @@ public abstract class TriumphMenuWrapper {
         MenuManager menuManager = MenuManager.getInstance();
         ItemStack itemStack = menuManager.parseMenuItem(player, symboledMenuItem, placeholderParser());
 
-        if (symboledMenuItem.getAction().equalsIgnoreCase("previous-page")) {
+        if (symboledMenuItem.getAction().equalsIgnoreCase("previous-page") && menuType == MenuType.PAGINATED) {
             GuiItem previousPageItem = ItemBuilder.from(itemStack).asGuiItem(event -> {
                 if (cachedGui instanceof PaginatedGui paginatedGui) {
                     paginatedGui.previous();
@@ -148,7 +148,7 @@ public abstract class TriumphMenuWrapper {
             });
 
             return new TriumphItemHolder(previousPageItem, parseSlots(symboledMenuItem.getSymbol()));
-        } else if (symboledMenuItem.getAction().equalsIgnoreCase("next-page")) {
+        } else if (symboledMenuItem.getAction().equalsIgnoreCase("next-page") && menuType == MenuType.PAGINATED) {
             GuiItem nextPageItem = ItemBuilder.from(itemStack).asGuiItem(event -> {
                 if (cachedGui instanceof PaginatedGui paginatedGui) {
                     paginatedGui.next();

@@ -4,6 +4,7 @@ import com.chickennw.utils.ChickenUtils;
 import com.chickennw.utils.configurations.menu.bedrock.BedrockMenuIconedButton;
 import com.chickennw.utils.logger.LoggerFactory;
 import com.chickennw.utils.models.config.menu.bedrock.BedrockSimpleMenuConfiguration;
+import com.chickennw.utils.utils.ChatUtils;
 import lombok.Getter;
 import org.bukkit.entity.Player;
 import org.geysermc.cumulus.form.SimpleForm;
@@ -34,9 +35,10 @@ public abstract class BedrockSimpleMenuWrapper {
                     onButtonClick(player, buttonId, buttonText);
                 });
 
-            for (BedrockMenuIconedButton button : menuConfiguration.getButtons()) {
-                if (button.getPath() != null) builder = builder.button(button.getText(), FormImage.Type.PATH, button.getPath());
-                else builder = builder.button(button.getText());
+            for (BedrockMenuIconedButton button : menuConfiguration.getButtons().values()) {
+                String text = ChatUtils.colorizeLegacy(button.getText());
+                if (button.getPath() != null) builder = builder.button(text, FormImage.Type.PATH, button.getPath());
+                else builder = builder.button(text);
             }
 
             FloodgateApi.getInstance().sendForm(player.getUniqueId(), builder.build());

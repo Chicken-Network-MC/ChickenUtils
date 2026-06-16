@@ -7,8 +7,11 @@ import org.bukkit.inventory.ItemStack;
 public class NbtUtils {
 
     public static ItemStack setKey(ItemStack itemStack, String key, String value) {
-        NBTItem nbti = new NBTItem(itemStack);
+        if (itemStack == null) return null;
+        if (itemStack.getType() == Material.AIR) return itemStack;
+        if (itemStack.getAmount() < 1) return itemStack;
 
+        NBTItem nbti = new NBTItem(itemStack);
         nbti.setString(key, value);
         return nbti.getItem();
     }

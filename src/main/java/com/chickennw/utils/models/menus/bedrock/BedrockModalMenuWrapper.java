@@ -3,6 +3,7 @@ package com.chickennw.utils.models.menus.bedrock;
 import com.chickennw.utils.ChickenUtils;
 import com.chickennw.utils.logger.LoggerFactory;
 import com.chickennw.utils.models.config.menu.bedrock.BedrockModalMenuConfiguration;
+import com.chickennw.utils.utils.ChatUtils;
 import lombok.Getter;
 import org.bukkit.entity.Player;
 import org.geysermc.cumulus.form.ModalForm;
@@ -25,8 +26,8 @@ public abstract class BedrockModalMenuWrapper {
             ModalForm.Builder builder = ModalForm.builder()
                 .title(menuConfiguration.getTitle())
                 .content(menuConfiguration.getContent())
-                .button1(menuConfiguration.getButton1().getText())
-                .button2(menuConfiguration.getButton2().getText())
+                .button1(ChatUtils.colorizeLegacy(menuConfiguration.getButton1().getText()))
+                .button2(ChatUtils.colorizeLegacy(menuConfiguration.getButton2().getText()))
                 .validResultHandler(response -> {
                     int buttonId = response.clickedButtonId();
 

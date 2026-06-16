@@ -1,8 +1,8 @@
 package com.chickennw.utils.models.config.menu.bedrock;
 
-import com.chickennw.utils.configurations.menu.bedrock.BedrockMenuIconedButton;
+import com.chickennw.utils.configurations.menu.bedrock.BedrockMenuButton;
 
-import java.util.LinkedHashSet;
+import java.util.LinkedHashMap;
 
 public interface BedrockCustomMenuConfiguration {
 
@@ -10,5 +10,5 @@ public interface BedrockCustomMenuConfiguration {
 
     String getOpenSound();
 
-    LinkedHashSet<BedrockMenuIconedButton> getItems();
+    LinkedHashMap<String, BedrockMenuButton> getButtons();
 }

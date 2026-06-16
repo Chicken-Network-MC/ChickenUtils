@@ -4,6 +4,7 @@ import com.chickennw.utils.configurations.menu.triumph.MenuItemStack;
 import com.chickennw.utils.configurations.menu.triumph.SymboledMenuItem;
 import com.chickennw.utils.utils.ChatUtils;
 import com.chickennw.utils.utils.ItemUtils;
+import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -42,6 +43,8 @@ public class MenuManager {
         ItemStack itemStack = offlinePlayer != null ?
                 ItemUtils.parseItemStack(material, offlinePlayer.getUniqueId()).join() :
                 ItemUtils.parseItemStack(material).join();
+        if (itemStack.getType() == Material.AIR) return itemStack;
+
         ItemMeta itemMeta = itemStack.getItemMeta();
 
         if (placeholderParser != null) name = placeholderParser.apply(name);

@@ -1,9 +1,8 @@
 package com.chickennw.utils.models.config.menu.bedrock;
 
-import com.chickennw.utils.configurations.menu.bedrock.BedrockMenuBaseButton;
 import com.chickennw.utils.configurations.menu.bedrock.BedrockMenuIconedButton;
 
-import java.util.List;
+import java.util.LinkedHashMap;
 
 public interface BedrockSimpleMenuConfiguration {
 
@@ -13,5 +12,5 @@ public interface BedrockSimpleMenuConfiguration {
 
     String getContent();
 
-    List<BedrockMenuIconedButton> getButtons();
+    LinkedHashMap<String, BedrockMenuIconedButton> getButtons();
 }
