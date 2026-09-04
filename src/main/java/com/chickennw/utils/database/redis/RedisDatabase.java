@@ -29,6 +29,9 @@ public abstract class RedisDatabase {
 
     private final Set<String> subscribedChannels = ConcurrentHashMap.newKeySet();
     private final AtomicBoolean subscriberRunning = new AtomicBoolean(false);
+    protected final String server;
+    protected final String channel;
+    protected final String serverGroup;
     protected final ExecutorService subscriberExecutor;
     protected final ExecutorService publisherMessageExecutor;
     protected final ExecutorService subscriberMessageExecutor;
@@ -53,21 +56,19 @@ public abstract class RedisDatabase {
         });
         logger = LoggerFactory.getLogger();
 
-        redisClient = buildClient(
-            redisConfiguration.getHost(),
-            redisConfiguration.getPort(),
-            redisConfiguration.getUser(),
-            redisConfiguration.getPassword()
-        );
-        subscriberClient = buildClient(
-            redisConfiguration.getHost(),
-            redisConfiguration.getPort(),
-            redisConfiguration.getUser(),
-            redisConfiguration.getPassword()
-        );
+        String redisHost = System.getenv("REDIS_HOST") == null ? redisConfiguration.getHost() : System.getenv("REDIS_HOST");
+        int port = System.getenv("REDIS_PORT") == null ? redisConfiguration.getPort() : Integer.parseInt(System.getenv("REDIS_PORT"));
+        String redisUser = System.getenv("REDIS_USER") == null ? redisConfiguration.getUser() : System.getenv("REDIS_USER");
+        String redisPassword = System.getenv("REDIS_PASSWORD") == null ? redisConfiguration.getPassword() : System.getenv("REDIS_PASSWORD");
+        redisClient = buildClient(redisHost, port, redisUser, redisPassword);
+        subscriberClient = buildClient(redisHost, port, redisUser, redisPassword);
 
         ChickenUtils.setRedisDatabase(this);
-        crossTeleportManager = new CrossTeleportManager(redisConfiguration.getServer(), this, redisConfiguration);
+
+        server = System.getenv("SERVER_ID") == null ? redisConfiguration.getServer() : System.getenv("SERVER_ID");
+        serverGroup = System.getenv("SERVER_GROUP_ID") == null ? redisConfiguration.getServerGroup() : System.getenv("SERVER_GROUP_ID");
+        channel = redisConfiguration.getChannel();
+        crossTeleportManager = new CrossTeleportManager(server, this, channel, serverGroup);
     }
 
     private static RedisClient buildClient(String host, int port, String user, String password) {
@@ -150,7 +151,10 @@ public abstract class RedisDatabase {
                                 if (method.equals(CrossTeleportManager.TELEPORT_LOCATION_KEY)) {
                                     UUID uuid = UUID.fromString(json.getString("player"));
                                     String targetServer = json.getString("targetServer");
-                                    if (!targetServer.equalsIgnoreCase(crossTeleportManager.getServerName())) return;
+                                    String serverGroup = json.optString("serverGroup");
+                                    boolean matchServer = targetServer.equalsIgnoreCase(crossTeleportManager.getServerName());
+                                    boolean matchGroup = !serverGroup.isEmpty() && serverGroup.equalsIgnoreCase(crossTeleportManager.getServerGroup());
+                                    if (!matchServer && !matchGroup) return;
 
                                     String world = json.getString("world");
                                     double x = json.getDouble("x");
@@ -159,7 +163,7 @@ public abstract class RedisDatabase {
                                     float yaw = (float) json.getDouble("yaw");
                                     float pitch = (float) json.getDouble("pitch");
 
-                                    PendingCrossLocationTeleport requsest = new PendingCrossLocationTeleport(uuid, targetServer, world, x, y, z,
+                                    PendingCrossLocationTeleport requsest = new PendingCrossLocationTeleport(uuid, targetServer, serverGroup, world, x, y, z,
                                         yaw, pitch, System.currentTimeMillis());
 
                                     crossTeleportManager.checkTeleportLocationOnlinePlayer(uuid, requsest);
@@ -167,18 +171,22 @@ public abstract class RedisDatabase {
                                 } else if (method.equals(CrossTeleportManager.TELEPORT_PLAYER_KEY)) {
                                     UUID uuid = UUID.fromString(json.getString("player"));
                                     String targetServer = json.getString("targetServer");
-                                    if (!targetServer.equalsIgnoreCase(crossTeleportManager.getServerName())) return;
+                                    String serverGroup = json.optString("serverGroup");
+                                    boolean matchServer = targetServer.equalsIgnoreCase(crossTeleportManager.getServerName());
+                                    boolean matchGroup = !serverGroup.isEmpty() && serverGroup.equalsIgnoreCase(crossTeleportManager.getServerGroup());
+                                    if (!matchServer && !matchGroup) return;
+
 
                                     UUID target = UUID.fromString(json.getString("target"));
 
-                                    PendingCrossPlayerTeleport requsest = new PendingCrossPlayerTeleport(uuid, target, targetServer, System.currentTimeMillis());
+                                    PendingCrossPlayerTeleport requsest = new PendingCrossPlayerTeleport(uuid, target, targetServer, serverGroup, System.currentTimeMillis());
                                     crossTeleportManager.checkTeleportPlayerOnlinePlayer(uuid, requsest);
                                     return;
                                 }
 
                                 RedisDatabase.this.onMessage(channelName, message);
                             } catch (Exception ex) {
-                                logger.error("Error on message: {}", ex.getMessage(), ex);
+                                logger.error("Error on message: {} -> {}", message, ex.getMessage(), ex);
                             }
                         });
                     }

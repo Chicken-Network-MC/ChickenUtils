@@ -17,7 +17,6 @@ import org.bukkit.inventory.meta.SkullMeta;
 import org.hibernate.Session;
 
 import javax.annotation.Nullable;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
@@ -28,7 +27,7 @@ public class HeadUtils {
 
     private static final ConcurrentHashMap<UUID, ItemStack> headsWithId = new ConcurrentHashMap<>();
     private static final ConcurrentHashMap<String, ItemStack> headsWithTexture = new ConcurrentHashMap<>();
-    private static final List<HeadEntity> cachedHeads = new ArrayList<>();
+    private static final ConcurrentHashMap<UUID, String> cachedTextures = new ConcurrentHashMap<>();
     private static Database database;
     private static boolean skinRestorerEnabled;
 
@@ -42,7 +41,7 @@ public class HeadUtils {
         database = db;
         try (Session session = database.getSessionFactory().openSession()) {
             List<HeadEntity> heads = session.createQuery("from HeadEntity", HeadEntity.class).list();
-            cachedHeads.addAll(heads);
+            for (HeadEntity head : heads) cachedTextures.put(head.getUuid(), head.getTexture());
         }
     }
 
@@ -129,10 +128,10 @@ public class HeadUtils {
             String textureValue = textureProperty.getValue();
             headsWithTexture.put(textureValue, itemStack);
 
-            HeadEntity headEntity = new HeadEntity(uuid, textureValue);
-            cachedHeads.add(headEntity);
-
-            database.save(headEntity);
+            String previousTexture = cachedTextures.put(uuid, textureValue);
+            if (!textureValue.equals(previousTexture)) {
+                database.save(new HeadEntity(uuid, textureValue));
+            }
         }
 
         headsWithId.put(uuid, itemStack);
@@ -147,12 +146,12 @@ public class HeadUtils {
         ItemStack itemStack = headsWithId.get(uuid);
         if (itemStack != null) return itemStack.clone();
 
-        HeadEntity headEntity = cachedHeads.stream().filter(h -> h.getUuid().equals(uuid)).findFirst().orElse(null);
-        if (headEntity != null) {
+        String texture = cachedTextures.get(uuid);
+        if (texture != null) {
             ItemStack skull = new ItemStack(Material.PLAYER_HEAD);
             SkullMeta skullMeta = (SkullMeta) skull.getItemMeta();
             PlayerProfile playerProfile = Bukkit.createProfile(uuid, null);
-            ProfileProperty profileProperty = new ProfileProperty("textures", headEntity.getTexture());
+            ProfileProperty profileProperty = new ProfileProperty("textures", texture);
 
             playerProfile.setProperty(profileProperty);
             skullMeta.setPlayerProfile(playerProfile);

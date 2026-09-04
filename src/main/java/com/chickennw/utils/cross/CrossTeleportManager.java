@@ -3,7 +3,6 @@ package com.chickennw.utils.cross;
 import com.chickennw.utils.ChickenUtils;
 import com.chickennw.utils.database.redis.RedisDatabase;
 import com.chickennw.utils.listeners.bukkit.CrossServerTeleportListeners;
-import com.chickennw.utils.models.config.redis.RedisConfiguration;
 import com.chickennw.utils.models.redis.RedisMessage;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
@@ -36,12 +35,14 @@ public class CrossTeleportManager {
 
     private final String serverName;
     private final RedisDatabase redisDatabase;
-    private final RedisConfiguration redisConfiguration;
+    private final String channel;
+    private final String serverGroup;
 
-    public CrossTeleportManager(String serverName, RedisDatabase redisDatabase, RedisConfiguration redisConfiguration) {
+    public CrossTeleportManager(String serverName, RedisDatabase redisDatabase, String channel, String serverGroup) {
         this.serverName = serverName;
         this.redisDatabase = redisDatabase;
-        this.redisConfiguration = redisConfiguration;
+        this.channel = channel;
+        this.serverGroup = serverGroup;
 
         JavaPlugin plugin = ChickenUtils.getPlugin();
         plugin.getServer().getMessenger().registerOutgoingPluginChannel(plugin, "BungeeCord");
@@ -69,7 +70,8 @@ public class CrossTeleportManager {
     }
 
     public void teleportLocation(PendingCrossLocationTeleport location) {
-        if (location.server().equalsIgnoreCase(serverName)) {
+        boolean isSameServerGroup = !serverGroup.isEmpty() && serverGroup.equalsIgnoreCase(location.serverGroup());
+        if (location.server().equalsIgnoreCase(serverName) || isSameServerGroup) {
             Location bukkitLocation = new Location(Bukkit.getWorld(location.world()), location.x(), location.y(), location.z(),
                 location.yaw(), location.pitch());
 
@@ -85,13 +87,14 @@ public class CrossTeleportManager {
             json.put("player", location.player().toString());
             json.put("world", location.world());
             json.put("targetServer", location.server());
+            json.put("serverGroup", location.serverGroup());
             json.put("x", location.x());
             json.put("y", location.y());
             json.put("z", location.z());
             json.put("yaw", location.yaw());
             json.put("pitch", location.pitch());
 
-            RedisMessage redisMessage = new RedisMessage(redisConfiguration.getChannel(), json.toString());
+            RedisMessage redisMessage = new RedisMessage(channel, json.toString());
             redisDatabase.publish(redisMessage);
 
             Player player = Bukkit.getPlayer(location.player());
@@ -114,8 +117,9 @@ public class CrossTeleportManager {
         json.put("player", pendingCrossPlayerTeleport.player().toString());
         json.put("targetServer", pendingCrossPlayerTeleport.server());
         json.put("target", pendingCrossPlayerTeleport.target().toString());
+        json.put("serverGroup", pendingCrossPlayerTeleport.serverGroup());
 
-        RedisMessage redisMessage = new RedisMessage(redisConfiguration.getChannel(), json.toString());
+        RedisMessage redisMessage = new RedisMessage(channel, json.toString());
         redisDatabase.publish(redisMessage);
 
         if (bukkitPlayer == null) {
@@ -123,8 +127,9 @@ public class CrossTeleportManager {
             jsonObject.put("method", CrossTeleportManager.TELEPORT_SERVER_KEY);
             jsonObject.put("uuid", pendingCrossPlayerTeleport.player().toString());
             jsonObject.put("server", pendingCrossPlayerTeleport.server());
+            jsonObject.put("serverGroup", pendingCrossPlayerTeleport.serverGroup());
 
-            RedisMessage teleportServer = new RedisMessage(redisConfiguration.getChannel(), jsonObject.toString());
+            RedisMessage teleportServer = new RedisMessage(channel, jsonObject.toString());
             redisDatabase.publish(teleportServer);
         } else {
             playerTeleportRequests.put(pendingCrossPlayerTeleport.player(), pendingCrossPlayerTeleport);

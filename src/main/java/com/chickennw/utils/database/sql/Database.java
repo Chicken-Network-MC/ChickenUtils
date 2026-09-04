@@ -12,6 +12,7 @@ import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import org.hibernate.cfg.Configuration;
+import org.hibernate.exception.ConstraintViolationException;
 import org.reflections.Reflections;
 import org.slf4j.Logger;
 
@@ -130,7 +131,8 @@ public abstract class Database {
             settings.put("hibernate.connection.url", "jdbc:sqlite:" + path + "/database.db");
             settings.put("hibernate.dialect", "org.hibernate.community.dialect.SQLiteDialect");
         } else {
-            throw new IllegalArgumentException("Unsupported database type: " + databaseType);
+            logger.error("Unsupported database type: {}", databaseType);
+            throw new RuntimeException("Unsupported database type: " + databaseType);
         }
 
         return settings;
@@ -141,14 +143,33 @@ public abstract class Database {
     }
 
     public void saveSync(Object object) {
+        try {
+            mergeAll(List.of(object));
+        } catch (ConstraintViolationException ex) {
+            try {
+                mergeAll(List.of(object));
+            } catch (Exception retryEx) {
+                logger.error("An error appeared on saving sync", retryEx);
+                throw new RuntimeException(retryEx);
+            }
+        } catch (Exception ex) {
+            logger.error("An error appeared on saving sync", ex);
+            throw new RuntimeException(ex);
+        }
+    }
+
+    private void mergeAll(List<?> objects) {
         try (Session session = sessionFactory.openSession()) {
             Transaction tx = session.beginTransaction();
             try {
-                session.merge(object);
+                for (Object object : objects) {
+                    session.merge(object);
+                }
+
                 tx.commit();
             } catch (Exception ex) {
                 tx.rollback();
-                throw new RuntimeException("An error appeared on saving spawners sync", ex);
+                throw ex;
             }
         }
     }
@@ -161,7 +182,8 @@ public abstract class Database {
                 tx.commit();
             } catch (Exception ex) {
                 tx.rollback();
-                throw new RuntimeException("An error appeared on deleting spawners sync", ex);
+                logger.error("An error appeared on deleting sync", ex);
+                throw new RuntimeException(ex);
             }
         }
     }
@@ -171,19 +193,18 @@ public abstract class Database {
     }
 
     public void saveSyncList(List<?> objects) {
-        try (Session session = sessionFactory.openSession()) {
-            Transaction tx = session.beginTransaction();
-
+        try {
+            mergeAll(objects);
+        } catch (ConstraintViolationException ex) {
             try {
-                for (Object object : objects) {
-                    session.merge(object);
-                }
-
-                tx.commit();
-            } catch (Exception ex) {
-                tx.rollback();
-                throw new RuntimeException("An error appeared on saving spawners sync", ex);
+                mergeAll(objects);
+            } catch (Exception retryEx) {
+                logger.error("An error appeared on saving sync list", retryEx);
+                throw new RuntimeException(retryEx);
             }
+        } catch (Exception ex) {
+            logger.error("An error appeared on saving sync list", ex);
+            throw new RuntimeException(ex);
         }
     }
 
@@ -203,7 +224,8 @@ public abstract class Database {
                 tx.commit();
             } catch (Exception ex) {
                 tx.rollback();
-                throw new RuntimeException("An error appeared on deleting spawners sync", ex);
+                logger.error("An error appeared on deleting sync list", ex);
+                throw new RuntimeException(ex);
             }
         }
     }
@@ -220,6 +242,7 @@ public abstract class Database {
             logger.info("Database connection test successful.");
         } catch (Exception e) {
             logger.error("Database connection test failed.", e);
+            throw new RuntimeException(e);
         }
     }
 
@@ -244,6 +267,7 @@ public abstract class Database {
             logger.info("Database closed successfully");
         } catch (Exception e) {
             logger.error("Error during database shutdown", e);
+            throw new RuntimeException(e);
         }
     }
 
@@ -307,7 +331,7 @@ public abstract class Database {
                 logger.info("SQLite backup completed");
             }
         } catch (Exception ex) {
-            throw new RuntimeException("Failed to backup SQLite database", ex);
+            logger.error("Failed to backup SQLite database", ex);
         }
     }
 

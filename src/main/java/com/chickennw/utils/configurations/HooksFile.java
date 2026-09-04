@@ -18,6 +18,8 @@ public class HooksFile extends OkaeriConfig {
 
     private ConfigEntityCountHook entityCountHooks = new ConfigEntityCountHook();
 
+    private ConfigItemCountHook itemCountHooks = new ConfigItemCountHook();
+
     private ConfigEntityLootHook entityLootHooks = new ConfigEntityLootHook();
 
     private OtherHook otherHooks = new OtherHook();
@@ -55,6 +57,14 @@ public class HooksFile extends OkaeriConfig {
     public static class ConfigEntityCountHook extends OkaeriConfig {
 
         private boolean vanilla = true;
+        private boolean wildStacker = true;
+        private boolean roseStacker = true;
+    }
+
+    @Getter
+    @Setter
+    public static class ConfigItemCountHook extends OkaeriConfig {
+
         private boolean wildStacker = true;
         private boolean roseStacker = true;
     }

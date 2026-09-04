@@ -6,7 +6,6 @@ import com.chickennw.utils.logger.LoggerFactory;
 import com.tcoded.folialib.FoliaLib;
 import lombok.Getter;
 import lombok.Setter;
-import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.slf4j.Logger;
 
@@ -19,9 +18,6 @@ public class ChickenUtils {
     private static FoliaLib foliaLib;
 
     @Getter
-    private static BukkitAudiences bukkitAudience;
-
-    @Getter
     private static PacketListeners packetListeners;
 
     @Setter
@@ -30,7 +26,6 @@ public class ChickenUtils {
     public static void setPlugin(JavaPlugin plugin) {
         ChickenUtils.plugin = plugin;
         foliaLib = new FoliaLib(plugin);
-        bukkitAudience = BukkitAudiences.create(plugin);
 
         Logger logger = LoggerFactory.getLogger();
         if (plugin.getServer().getPluginManager().isPluginEnabled("PacketEvents")) {
@@ -42,10 +37,6 @@ public class ChickenUtils {
     }
 
     public static void disable() {
-        if (bukkitAudience != null) {
-            bukkitAudience.close();
-        }
-
         if (plugin.getServer().getPluginManager().isPluginEnabled("PacketEvents")) {
             packetListeners.disable();
         }
