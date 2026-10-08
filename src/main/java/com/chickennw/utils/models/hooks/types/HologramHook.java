@@ -16,6 +16,12 @@ public interface HologramHook extends PluginHook {
 
     void update(Location location, List<String> lines);
 
+    /**
+     * Returns true only when a hologram exists at the location and its viewer list is empty.
+     * Missing holograms return false so callers still reach update(), which may create them.
+     */
+    boolean hasNoViewers(Location location);
+
     default String locationToString(Location location) {
         return location.getWorld().getName() + "_" + location.getBlockX() + "_" + location.getBlockY() + "_" + location.getBlockZ();
     }

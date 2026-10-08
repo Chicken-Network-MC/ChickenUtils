@@ -57,6 +57,12 @@ public class DecentHologramsHook extends AbstractPluginHook implements HologramH
     }
 
     @Override
+    public boolean hasNoViewers(Location location) {
+        Hologram hologram = DHAPI.getHologram(locationToString(location));
+        return hologram != null && hologram.getViewerPages().isEmpty();
+    }
+
+    @Override
     public void update(Location location, List<String> lines) {
         String locString = locationToString(location);
         Hologram hologram = DHAPI.getHologram(locString);

@@ -9,6 +9,7 @@ import de.oliver.fancyholograms.api.HologramManager;
 import de.oliver.fancyholograms.api.data.TextHologramData;
 import de.oliver.fancyholograms.api.hologram.Hologram;
 import lombok.extern.slf4j.Slf4j;
+import lombok.val;
 import org.bukkit.Color;
 import org.bukkit.Location;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -80,6 +81,12 @@ public class FancyHologramsHook extends AbstractPluginHook implements HologramHo
     @Override
     public void remove(Location location) {
         manager.getHologram(locationToString(location)).ifPresent(manager::removeHologram);
+    }
+
+    @Override
+    public boolean hasNoViewers(Location location) {
+        Hologram hologram = manager.getHologram(locationToString(location)).orElse(null);
+        return hologram == null || hologram.getViewers().isEmpty();
     }
 
     @Override

@@ -57,6 +57,12 @@ public class CMIHologramHook extends AbstractPluginHook implements HologramHook 
     }
 
     @Override
+    public boolean hasNoViewers(Location location) {
+        CMIHologram hologram = CMI.getInstance().getHologramManager().getByName(locationToString(location));
+        return hologram != null && hologram.getLastHoloInRange().isEmpty();
+    }
+
+    @Override
     public void update(Location location, List<String> lines) {
         String locString = locationToString(location);
         CMIHologram hologram = CMI.getInstance().getHologramManager().getByName(locString);
