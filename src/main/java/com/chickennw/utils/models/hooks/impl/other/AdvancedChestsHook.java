@@ -51,7 +51,7 @@ public class AdvancedChestsHook extends AbstractPluginHook implements OtherHook 
         int remaining = itemStack.getAmount();
         int maxStackSize = itemStack.getMaxStackSize();
 
-        for (ChestPage<?> page : advancedChest.getPages().values()) {
+        for (ChestPage<?> page : advancedChest.getPages()) {
             Inventory inventory = page.getBukkitInventory();
             if (inventory == null) continue;
 
@@ -68,7 +68,7 @@ public class AdvancedChestsHook extends AbstractPluginHook implements OtherHook 
             }
         }
 
-        for (ChestPage<?> page : advancedChest.getPages().values()) {
+        for (ChestPage<?> page : advancedChest.getPages()) {
             Inventory inventory = page.getBukkitInventory();
             if (inventory == null) continue;
 
