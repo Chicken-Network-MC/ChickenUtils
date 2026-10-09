@@ -37,9 +37,7 @@ public class ChickenUtils {
     }
 
     public static void disable() {
-        if (plugin.getServer().getPluginManager().isPluginEnabled("PacketEvents")) {
-            packetListeners.disable();
-        }
+        if (packetListeners != null) packetListeners.disable();
 
         if (redisDatabase != null) {
             redisDatabase.close();

@@ -90,7 +90,16 @@ public class ConfigManager {
     }
 
     public void reload() {
-        configClassHolders.forEach(holder -> holder.config().load(true));
+        configClassHolders.forEach(holder -> {
+            String fileName = holder.configClass().getSimpleName().replace("File", "") + ".yml";
+
+            try {
+                holder.config().saveDefaults();
+                holder.config().load(true);
+            } catch (Exception exception) {
+                logger.error("Failed to reload config file: {}", fileName, exception);
+            }
+        });
     }
 
     private List<Class<? extends OkaeriConfig>> loadClasses() {

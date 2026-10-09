@@ -172,7 +172,6 @@ public class BentoBoxHook extends AbstractPluginHook implements ProtectionHook, 
     }
 
     private UUID parseUUID(String rawUUID) {
-        String cleanedUUID = rawUUID.replace("BSkyBlock", "");
-        return UUID.fromString(cleanedUUID);
+        return UUID.fromString(rawUUID.substring(rawUUID.length() - 36));
     }
 }
