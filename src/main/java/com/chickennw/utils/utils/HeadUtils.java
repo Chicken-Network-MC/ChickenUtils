@@ -96,7 +96,7 @@ public class HeadUtils {
             .applyAsync()
             .orTimeout(3, TimeUnit.SECONDS);
         headFuture.whenComplete((head, throwable) -> {
-            HeadUtils.cache(texture, head);
+            if (head != null) HeadUtils.cache(texture, head);
         });
 
         return headFuture;
